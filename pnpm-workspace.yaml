@@ -1,0 +1,12 @@
+allowBuilds:
+  esbuild: false
+  msw: false
+ignoredBuiltDependencies:
+  - esbuild
+  - msw
+minimumReleaseAgeExclude:
+  - '@testing-library/jest-dom@7.0.0'
+  - prettier@3.9.6
+  - react-dom@19.2.8
+  - react@19.2.8
+  - recharts@3.10.0
