@@ -1,4 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,5 +21,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Outlet />
+    </LocalizationProvider>
+  );
 }
