@@ -12,3 +12,16 @@ export const productSchema = z.object({
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
+
+export function getFieldErrors(
+  error: z.ZodError<ProductFormValues>,
+): Partial<Record<keyof ProductFormValues, string[]>> {
+  const tree = z.treeifyError(error);
+  const fieldErrors: Partial<Record<keyof ProductFormValues, string[]>> = {};
+
+  for (const [field, fieldTree] of Object.entries(tree.properties ?? {})) {
+    fieldErrors[field as keyof ProductFormValues] = fieldTree?.errors;
+  }
+
+  return fieldErrors;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { productSchema } from "./product-schema";
+import { getFieldErrors, productSchema } from "./product-schema";
 
 describe("productSchema", () => {
   const validInput = {
@@ -28,7 +28,7 @@ describe("productSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.flatten().fieldErrors.name).toEqual(["Name is required"]);
+      expect(getFieldErrors(result.error).name).toEqual(["Name is required"]);
     }
   });
 
@@ -37,9 +37,7 @@ describe("productSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.flatten().fieldErrors.price).toEqual([
-        "Price must be greater than 0",
-      ]);
+      expect(getFieldErrors(result.error).price).toEqual(["Price must be greater than 0"]);
     }
   });
 
@@ -48,7 +46,7 @@ describe("productSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.flatten().fieldErrors.stockQuantity).toEqual([
+      expect(getFieldErrors(result.error).stockQuantity).toEqual([
         "Stock quantity cannot be negative",
       ]);
     }
@@ -59,7 +57,7 @@ describe("productSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.flatten().fieldErrors.imageUrl).toEqual(["Must be a valid URL"]);
+      expect(getFieldErrors(result.error).imageUrl).toEqual(["Must be a valid URL"]);
     }
   });
 
@@ -68,7 +66,7 @@ describe("productSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.flatten().fieldErrors.status).toBeDefined();
+      expect(getFieldErrors(result.error).status).toBeDefined();
     }
   });
 });

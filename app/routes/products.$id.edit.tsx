@@ -7,7 +7,7 @@ import {
 } from "react-router";
 import type { Route } from "./+types/products.$id.edit";
 import { ProductForm } from "../features/product-form/ProductForm";
-import { productSchema } from "../features/product-form/product-schema";
+import { getFieldErrors, productSchema } from "../features/product-form/product-schema";
 import type { Product } from "../types";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -35,7 +35,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
   const result = productSchema.safeParse(Object.fromEntries(formData));
 
   if (!result.success) {
-    return { errors: result.error.flatten().fieldErrors };
+    return { errors: getFieldErrors(result.error) };
   }
 
   await fetch(`http://localhost/api/products/${params.id}`, {

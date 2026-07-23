@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import ProductDetailRoute, { loader, ErrorBoundary } from "./products.$id";
+import ProductDetailRoute, { loader, HydrateFallback, ErrorBoundary } from "./products.$id";
 import { test, describe, expect } from "../../test/context";
 
 function renderRoute(initialPath: string) {
@@ -11,6 +11,7 @@ function renderRoute(initialPath: string) {
       path: "/products/:id",
       Component: ProductDetailRoute,
       loader,
+      HydrateFallback,
       ErrorBoundary,
     },
   ]);
@@ -23,7 +24,7 @@ function renderRoute(initialPath: string) {
 }
 
 describe("/products/:id route", () => {
-  test("renders the product's name and description", async ({ schema }) => {
+  test("renders the product's name and description once data resolves", async ({ schema }) => {
     const [product] = schema.products.all().models;
 
     renderRoute(`/products/${product.id}`);

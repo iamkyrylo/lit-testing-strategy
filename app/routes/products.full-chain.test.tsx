@@ -4,10 +4,14 @@ import { createRoutesStub } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import ProductsLayout from "./products";
-import ProductsIndexRoute, { loader as indexLoader } from "./products.index";
+import ProductsIndexRoute, {
+  loader as indexLoader,
+  HydrateFallback as IndexHydrateFallback,
+} from "./products.index";
 import ProductsNewRoute, { action as newAction } from "./products.new";
 import ProductDetailRoute, {
   loader as detailLoader,
+  HydrateFallback as DetailHydrateFallback,
   ErrorBoundary as DetailErrorBoundary,
 } from "./products.$id";
 import ProductEditRoute, { loader as editLoader, action as editAction } from "./products.$id.edit";
@@ -19,12 +23,18 @@ function renderProductsApp(initialPath: string) {
       path: "/products",
       Component: ProductsLayout,
       children: [
-        { index: true, Component: ProductsIndexRoute, loader: indexLoader },
+        {
+          index: true,
+          Component: ProductsIndexRoute,
+          loader: indexLoader,
+          HydrateFallback: IndexHydrateFallback,
+        },
         { path: "new", Component: ProductsNewRoute, action: newAction },
         {
           path: ":id",
           Component: ProductDetailRoute,
           loader: detailLoader,
+          HydrateFallback: DetailHydrateFallback,
           ErrorBoundary: DetailErrorBoundary,
         },
         {

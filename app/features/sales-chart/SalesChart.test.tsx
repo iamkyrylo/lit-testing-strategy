@@ -5,12 +5,14 @@ import { SalesChart, type SalesChartProps } from "./SalesChart";
 import { test, describe, expect } from "../../../test/context";
 import type { Sale } from "../../types";
 
+function daysAgo(days: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toISOString();
+}
+
 function renderChart(props: Partial<SalesChartProps> = {}) {
-  const defaultProps: SalesChartProps = {
-    initialSales: [],
-    initialFrom: new Date(2026, 0, 1),
-    initialTo: new Date(2026, 0, 31),
-  };
+  const defaultProps: SalesChartProps = { initialSales: [] };
 
   return render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -26,8 +28,8 @@ function getPlottedPointCount(container: HTMLElement) {
 describe("SalesChart", () => {
   test("plots one point per aggregated sales date, without making a network request", () => {
     const initialSales: Sale[] = [
-      { id: "s1", date: "2026-01-05T00:00:00.000Z", productId: "p1", unitsSold: 10 },
-      { id: "s2", date: "2026-01-06T00:00:00.000Z", productId: "p1", unitsSold: 15 },
+      { id: "s1", date: daysAgo(5), productId: "p1", unitsSold: 10 },
+      { id: "s2", date: daysAgo(4), productId: "p1", unitsSold: 15 },
     ];
 
     const { container } = renderChart({ initialSales, productId: "p1" });
@@ -37,8 +39,8 @@ describe("SalesChart", () => {
 
   test("aggregates multiple sales on the same date into a single plotted point", () => {
     const initialSales: Sale[] = [
-      { id: "s1", date: "2026-01-05T00:00:00.000Z", productId: "p1", unitsSold: 10 },
-      { id: "s2", date: "2026-01-05T00:00:00.000Z", productId: "p1", unitsSold: 5 },
+      { id: "s1", date: daysAgo(5), productId: "p1", unitsSold: 10 },
+      { id: "s2", date: daysAgo(5), productId: "p1", unitsSold: 5 },
     ];
 
     const { container } = renderChart({ initialSales, productId: "p1" });
@@ -61,7 +63,7 @@ describe("SalesChart", () => {
     });
     schema.sales.deleteMany({ where: { productId: product.id } });
     schema.sales.create({
-      date: "2026-02-10T00:00:00.000Z",
+      date: daysAgo(45),
       productId: product.id,
       unitsSold: 42,
     });
@@ -69,8 +71,14 @@ describe("SalesChart", () => {
     const { container } = renderChart({ initialSales: [], productId: product.id });
     expect(getPlottedPointCount(container)).toBe(0);
 
-    const toField = screen.getByLabelText(/^To$/, { selector: "input" });
-    fireEvent.change(toField, { target: { value: "02/28/2026" } });
+    const fromField = screen.getByLabelText(/^From$/, { selector: "input" });
+    const wideFrom = new Date();
+    wideFrom.setDate(wideFrom.getDate() - 60);
+    fireEvent.change(fromField, {
+      target: {
+        value: `${String(wideFrom.getMonth() + 1).padStart(2, "0")}/${String(wideFrom.getDate()).padStart(2, "0")}/${wideFrom.getFullYear()}`,
+      },
+    });
 
     await waitFor(() => {
       expect(getPlottedPointCount(container)).toBe(1);

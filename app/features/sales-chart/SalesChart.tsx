@@ -8,14 +8,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Box } from "@mui/material";
 import { DateRangePicker } from "../../ui/date-range-picker/DateRangePicker";
+import { getDefaultDateRange } from "./date-range";
 import type { Sale } from "../../types";
 
 export interface SalesChartProps {
   productId?: string;
   initialSales: Sale[];
-  initialFrom: Date;
-  initialTo: Date;
 }
 
 function toIsoDate(date: Date): string {
@@ -35,8 +35,8 @@ function aggregateByDate(sales: Sale[]): { date: string; unitsSold: number }[] {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function SalesChart({ productId, initialSales, initialFrom, initialTo }: SalesChartProps) {
-  const [range, setRange] = useState({ from: initialFrom, to: initialTo });
+export function SalesChart({ productId, initialSales }: SalesChartProps) {
+  const [range, setRange] = useState(getDefaultDateRange);
   const [sales, setSales] = useState(initialSales);
 
   async function handleRangeChange(newRange: { from: Date; to: Date }) {
@@ -61,7 +61,9 @@ export function SalesChart({ productId, initialSales, initialFrom, initialTo }: 
 
   return (
     <div>
-      <DateRangePicker from={range.from} to={range.to} onChange={handleRangeChange} />
+      <Box sx={{ mb: 2 }}>
+        <DateRangePicker from={range.from} to={range.to} onChange={handleRangeChange} />
+      </Box>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />

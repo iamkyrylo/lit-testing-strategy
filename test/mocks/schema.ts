@@ -62,7 +62,7 @@ export const testSchema: SchemaInstance<TestCollections> = schema()
       .model(productModel)
       .factory(productFactory)
       .seeds((schema) => {
-        schema.products.createMany(faker.number.int({ min: 8, max: 16 }));
+        schema.products.createMany(20);
       })
       .build(),
 
