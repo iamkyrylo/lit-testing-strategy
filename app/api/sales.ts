@@ -1,6 +1,6 @@
-import type { Sale } from "../types";
-import { toIsoDate } from "../utils/date";
 import { apiUrl } from "./config";
+import { toIsoDate } from "../utils/date";
+import type { Sale } from "../types";
 
 export interface GetSalesParams {
   productId?: string;

@@ -1,5 +1,5 @@
-import type { Product, ProductInput } from "../types";
 import { apiUrl } from "./config";
+import type { Product, ProductInput } from "../types";
 
 export async function getProducts(): Promise<Product[]> {
   const response = await fetch(apiUrl("/products"));

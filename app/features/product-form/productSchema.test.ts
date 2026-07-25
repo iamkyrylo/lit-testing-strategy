@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getFieldErrors, productSchema } from "./product-schema";
+import { getFieldErrors, productSchema } from "./productSchema";
 
 describe("productSchema", () => {
   const validInput = {

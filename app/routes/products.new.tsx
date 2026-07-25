@@ -1,7 +1,7 @@
 import { redirect, useNavigation, useActionData } from "react-router";
 import type { Route } from "./+types/products.new";
 import { ProductForm } from "../features/product-form/ProductForm";
-import { getFieldErrors, productSchema } from "../features/product-form/product-schema";
+import { getFieldErrors, productSchema } from "../features/product-form/productSchema";
 import { createProduct } from "../api/products";
 
 export async function action({ request }: Route.ActionArgs) {

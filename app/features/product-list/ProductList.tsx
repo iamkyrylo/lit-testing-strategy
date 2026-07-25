@@ -64,6 +64,10 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
     setPage(0);
   }
 
+  function handlePageChange(_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) {
+    setPage(newPage);
+  }
+
   return (
     <Stack spacing={2}>
       <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
@@ -108,7 +112,7 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
             component="div"
             count={sortedProducts.length}
             page={page}
-            onPageChange={(_event, newPage) => setPage(newPage)}
+            onPageChange={handlePageChange}
             rowsPerPage={ROWS_PER_PAGE}
             rowsPerPageOptions={[ROWS_PER_PAGE]}
           />
