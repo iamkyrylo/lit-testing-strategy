@@ -9,3 +9,5 @@ export interface Product {
   description: string;
   status: "active" | "archived";
 }
+
+export type ProductInput = Omit<Product, "id">;
