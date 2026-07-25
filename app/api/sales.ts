@@ -1,6 +1,6 @@
 import type { Sale } from "../types";
 import { toIsoDate } from "../utils/date";
-import { API_URL } from "./config";
+import { apiUrl } from "./config";
 
 export interface GetSalesParams {
   productId?: string;
@@ -22,7 +22,7 @@ export async function getSales(params: GetSalesParams = {}): Promise<Sale[]> {
   }
 
   const query = searchParams.toString();
-  const response = await fetch(`${API_URL}/sales${query ? `?${query}` : ""}`);
+  const response = await fetch(apiUrl(`/sales${query ? `?${query}` : ""}`));
 
   return response.json() as Promise<Sale[]>;
 }

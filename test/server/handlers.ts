@@ -1,14 +1,14 @@
 import { http, HttpResponse } from "msw";
 import { testSchema } from "../mocks/schema";
 import { ProductInput } from "../../app/types";
-import { API_URL } from "../../app/api/config";
+import { apiUrl } from "../../app/api/config";
 
 export const handlers = [
-  http.get(`${API_URL}/products`, () => {
+  http.get(apiUrl("/products"), () => {
     return HttpResponse.json(testSchema.products.all().toJSON());
   }),
 
-  http.get(`${API_URL}/products/:id`, ({ params }) => {
+  http.get(apiUrl("/products/:id"), ({ params }) => {
     const product = testSchema.products.find(String(params.id));
 
     if (!product) {
@@ -18,14 +18,14 @@ export const handlers = [
     return HttpResponse.json(product.toJSON());
   }),
 
-  http.post(`${API_URL}/products`, async ({ request }) => {
+  http.post(apiUrl("/products"), async ({ request }) => {
     const body = (await request.json()) as ProductInput;
     const created = testSchema.products.create(body);
 
     return HttpResponse.json(created.toJSON(), { status: 201 });
   }),
 
-  http.put(`${API_URL}/products/:id`, async ({ params, request }) => {
+  http.put(apiUrl("/products/:id"), async ({ params, request }) => {
     const body = (await request.json()) as ProductInput;
     const existing = testSchema.products.find(String(params.id));
 
@@ -38,7 +38,7 @@ export const handlers = [
     return HttpResponse.json(existing.toJSON());
   }),
 
-  http.get(`${API_URL}/sales`, ({ request }) => {
+  http.get(apiUrl("/sales"), ({ request }) => {
     const url = new URL(request.url);
     const productId = url.searchParams.get("productId");
     const from = url.searchParams.get("from") ?? "0000-01-01";

@@ -1,13 +1,13 @@
 import type { Product, ProductInput } from "../types";
-import { API_URL } from "./config";
+import { apiUrl } from "./config";
 
 export async function getProducts(): Promise<Product[]> {
-  const response = await fetch(`${API_URL}/products`);
+  const response = await fetch(apiUrl("/products"));
   return response.json() as Promise<Product[]>;
 }
 
 export async function getProduct(id: string): Promise<Product> {
-  const response = await fetch(`${API_URL}/products/${id}`);
+  const response = await fetch(apiUrl(`/products/${id}`));
 
   if (response.status === 404) {
     throw new Response("Product not found", { status: 404 });
@@ -17,7 +17,7 @@ export async function getProduct(id: string): Promise<Product> {
 }
 
 export async function createProduct(input: ProductInput): Promise<Product> {
-  const response = await fetch(`${API_URL}/products`, {
+  const response = await fetch(apiUrl("/products"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -27,7 +27,7 @@ export async function createProduct(input: ProductInput): Promise<Product> {
 }
 
 export async function updateProduct(id: string, input: ProductInput): Promise<Product> {
-  const response = await fetch(`${API_URL}/products/${id}`, {
+  const response = await fetch(apiUrl(`/products/${id}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
