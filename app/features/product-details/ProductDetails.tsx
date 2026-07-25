@@ -5,12 +5,12 @@ import type { Product } from "../../types";
 export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
   return (
     <>
-      <Typography variant="h4" component="h2" color="primary">
+      <Typography component="h2" color="primary" variant="h4">
         {product.name}
       </Typography>
       <Box
-        component="dl"
         aria-label="Product Details"
+        component="dl"
         sx={{
           display: "grid",
           gridTemplateColumns: "max-content 1fr",

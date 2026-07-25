@@ -43,10 +43,10 @@ export default function ProductEditRoute({ loaderData }: Route.ComponentProps) {
 
   return (
     <ProductForm
-      mode="edit"
-      initialProduct={loaderData.product}
       errors={actionData?.errors}
+      initialProduct={loaderData.product}
       isSubmitting={navigation.state === "submitting"}
+      mode="edit"
     />
   );
 }

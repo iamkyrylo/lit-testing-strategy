@@ -35,7 +35,7 @@ export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) 
       <Box sx={{ mb: 2 }}>
         <DateRangePicker from={from} to={to} onChange={onRangeChange} />
       </Box>
-      <Box role="img" aria-labelledby="sales-chart-heading">
+      <Box aria-labelledby="sales-chart-heading" role="img">
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#666" />

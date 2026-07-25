@@ -27,20 +27,20 @@ export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps)
             <Suspense
               fallback={
                 <Skeleton
-                  variant="rectangular"
+                  aria-label="Loading product sales"
                   height={300}
                   role="status"
-                  aria-label="Loading product sales"
+                  variant="rectangular"
                 />
               }
             >
               <Await resolve={loaderData.sales}>
                 {(sales) => (
                   <SalesChart
-                    sales={sales}
                     from={loaderData.from}
-                    to={loaderData.to}
                     onRangeChange={onRangeChange}
+                    sales={sales}
+                    to={loaderData.to}
                   />
                 )}
               </Await>
@@ -54,19 +54,19 @@ export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps)
             <Suspense
               fallback={
                 <Skeleton
-                  variant="rectangular"
+                  aria-label="Loading products"
                   height={400}
                   role="status"
-                  aria-label="Loading products"
+                  variant="rectangular"
                 />
               }
             >
               <Await resolve={loaderData.products}>
                 {(products) => (
                   <ProductList
-                    products={products}
-                    onAddProduct={() => navigate("new")}
                     headingId="products-heading"
+                    onAddProduct={() => navigate("new")}
+                    products={products}
                   />
                 )}
               </Await>
@@ -85,10 +85,10 @@ export function HydrateFallback() {
         <Card>
           <CardContent>
             <Skeleton
-              variant="rectangular"
+              aria-label="Loading product sales"
               height={300}
               role="status"
-              aria-label="Loading product sales"
+              variant="rectangular"
             />
           </CardContent>
         </Card>
@@ -97,10 +97,10 @@ export function HydrateFallback() {
         <Card>
           <CardContent>
             <Skeleton
-              variant="rectangular"
+              aria-label="Loading products"
               height={400}
               role="status"
-              aria-label="Loading products"
+              variant="rectangular"
             />
           </CardContent>
         </Card>

@@ -23,9 +23,9 @@ export default function ProductsNewRoute() {
 
   return (
     <ProductForm
-      mode="add"
       errors={actionData?.errors}
       isSubmitting={navigation.state === "submitting"}
+      mode="add"
     />
   );
 }
