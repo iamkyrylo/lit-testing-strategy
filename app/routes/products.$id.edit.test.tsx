@@ -6,7 +6,8 @@ import { test, describe, expect } from "../../test/context";
 
 describe("/products/:id/edit route", () => {
   test("renders the form prefilled with the product's current values", async ({ schema }) => {
-    const [product] = schema.products.all().models;
+    schema.products.create();
+    const product = schema.products.first()!;
     const Stub = createRoutesStub([
       { path: "/products/:id/edit", Component: ProductEditRoute, loader, action },
     ]);
@@ -19,7 +20,8 @@ describe("/products/:id/edit route", () => {
 
   // known issue: form submit doesn't trigger the action with real field values
   test.skip("updates the product's name and redirects to the detail page", async ({ schema }) => {
-    const [product] = schema.products.all().models;
+    schema.products.create();
+    const product = schema.products.first()!;
     const user = userEvent.setup();
     const Stub = createRoutesStub([
       { path: "/products/:id", Component: () => <div>Product detail</div> },

@@ -14,20 +14,26 @@ const productInput: ProductInput = {
 };
 
 describe("getProducts", () => {
-  test("returns every seeded product", async ({ schema }) => {
+  test("returns every product in the store", async ({ schema }) => {
+    schema.products.createMany(3);
+
+    const expected = schema.products.all().toJSON();
     const products = await getProducts();
 
-    expect(products).toEqual(schema.products.all().toJSON());
+    expect(products).toEqual(expected);
   });
 });
 
 describe("getProduct", () => {
   test("returns the product matching the given id", async ({ schema }) => {
-    const [seeded] = schema.products.all().models;
+    schema.products.create();
 
-    const product = await getProduct(seeded.id);
+    const seeded = schema.products.first();
 
-    expect(product).toEqual(seeded.toJSON());
+    const product = await getProduct(seeded!.id);
+
+    const expected = seeded!.toJSON();
+    expect(product).toEqual(expected);
   });
 
   test("throws a 404 Response for an unknown id", async () => {
@@ -41,17 +47,21 @@ describe("createProduct", () => {
 
     const stored = schema.products.find(created.id);
     expect(stored).not.toBeNull();
-    expect(created).toEqual(stored?.toJSON());
+
+    const expected = stored?.toJSON();
+    expect(created).toEqual(expected);
   });
 });
 
 describe("updateProduct", () => {
   test("updates the product to match the schema's record for it", async ({ schema }) => {
-    const [seeded] = schema.products.all().models;
+    schema.products.create();
+    const seeded = schema.products.first();
 
-    const updated = await updateProduct(seeded.id, { ...productInput, name: "Renamed" });
+    const updated = await updateProduct(seeded!.id, { ...productInput, name: "Renamed" });
 
-    const stored = schema.products.find(seeded.id);
-    expect(updated).toEqual(stored?.toJSON());
+    const stored = schema.products.find(seeded!.id);
+    const expected = stored?.toJSON();
+    expect(updated).toEqual(expected);
   });
 });

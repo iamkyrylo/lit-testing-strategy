@@ -21,8 +21,6 @@ export const test = baseTest.extend<TestContext>({
     // eslint-disable-next-line no-empty-pattern -- Vitest requires the destructuring pattern to statically detect fixture dependencies
     async ({}, use) => {
       testSchema.emptyData();
-      testSchema.resetSeedTracking();
-      await testSchema.loadSeeds({ onlyDefault: true });
       await use(testSchema);
       server.resetHandlers();
     },

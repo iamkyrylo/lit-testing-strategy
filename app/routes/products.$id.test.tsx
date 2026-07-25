@@ -28,7 +28,8 @@ function renderRoute(initialPath: string, siblings: object[] = []) {
 
 describe("/products/:id route", () => {
   test("renders the product's name and description once data resolves", async ({ schema }) => {
-    const [product] = schema.products.all().models;
+    schema.products.create();
+    const product = schema.products.first()!;
 
     renderRoute(`/products/${product.id}`);
 
@@ -43,7 +44,8 @@ describe("/products/:id route", () => {
   });
 
   test("navigates to the edit dialog when Edit is clicked", async ({ schema }) => {
-    const [product] = schema.products.all().models;
+    schema.products.create();
+    const product = schema.products.first()!;
     const user = userEvent.setup();
 
     renderRoute(`/products/${product.id}`, [
