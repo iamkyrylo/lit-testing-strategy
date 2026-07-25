@@ -34,7 +34,7 @@ export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) 
       </Box>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" fill="#666" />
           <XAxis dataKey="date" />
           <YAxis />
           <Tooltip />
