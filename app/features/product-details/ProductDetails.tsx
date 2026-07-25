@@ -18,31 +18,31 @@ export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
         }}
       >
         <Typography component="dt" color="text.secondary">
-          Description
+          Description:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {product.description}
         </Typography>
         <Typography component="dt" color="text.secondary">
-          SKU
+          SKU:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {product.sku}
         </Typography>
         <Typography component="dt" color="text.secondary">
-          Price
+          Price:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {formatPrice(product.price)}
         </Typography>
         <Typography component="dt" color="text.secondary">
-          Stock
+          Stock:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {product.stockQuantity}
         </Typography>
       </Box>
-      <Button variant="outlined" onClick={onEdit}>
+      <Button variant="outlined" onClick={onEdit} fullWidth>
         Edit
       </Button>
     </>
