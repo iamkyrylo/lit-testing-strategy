@@ -17,10 +17,7 @@ describe("/products/:id/edit route", () => {
     expect(screen.getByLabelText(/sku/i)).toHaveValue(product.sku);
   });
 
-  // Skipped: same unresolved issue as products.new.test.tsx - submitting the
-  // form via click never triggers the action once real field values are in
-  // play, even though the button/form wiring itself is correct (form renders,
-  // is prefilled correctly per the test above). See that file's skip comment.
+  // known issue: form submit doesn't trigger the action with real field values
   test.skip("updates the product's name and redirects to the detail page", async ({ schema }) => {
     const [product] = schema.products.all().models;
     const user = userEvent.setup();

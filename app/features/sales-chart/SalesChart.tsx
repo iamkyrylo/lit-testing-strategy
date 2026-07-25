@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   LineChart,
   Line,
@@ -10,16 +9,13 @@ import {
 } from "recharts";
 import { Box } from "@mui/material";
 import { DateRangePicker } from "../../ui/date-range-picker/DateRangePicker";
-import { getDefaultDateRange } from "./date-range";
 import type { Sale } from "../../types";
 
 export interface SalesChartProps {
-  productId?: string;
-  initialSales: Sale[];
-}
-
-function toIsoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  sales: Sale[];
+  from: Date;
+  to: Date;
+  onRangeChange: (range: { from: Date; to: Date }) => void;
 }
 
 function aggregateByDate(sales: Sale[]): { date: string; unitsSold: number }[] {
@@ -35,34 +31,13 @@ function aggregateByDate(sales: Sale[]): { date: string; unitsSold: number }[] {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function SalesChart({ productId, initialSales }: SalesChartProps) {
-  const [range, setRange] = useState(getDefaultDateRange);
-  const [sales, setSales] = useState(initialSales);
-
-  async function handleRangeChange(newRange: { from: Date; to: Date }) {
-    setRange(newRange);
-
-    const params = new URLSearchParams({
-      from: toIsoDate(newRange.from),
-      to: toIsoDate(newRange.to),
-    });
-
-    if (productId) {
-      params.set("productId", productId);
-    }
-
-    const response = await fetch(`http://localhost/api/sales?${params.toString()}`);
-    const nextSales = (await response.json()) as Sale[];
-
-    setSales(nextSales);
-  }
-
+export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) {
   const chartData = aggregateByDate(sales);
 
   return (
     <div>
       <Box sx={{ mb: 2 }}>
-        <DateRangePicker from={range.from} to={range.to} onChange={handleRangeChange} />
+        <DateRangePicker from={from} to={to} onChange={onRangeChange} />
       </Box>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>

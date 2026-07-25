@@ -1,8 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { testSchema } from "../mocks/schema";
-import type { Product } from "../../app/types";
-
-type ProductInput = Omit<Product, "id">;
+import type { ProductInput } from "../../app/api/products";
 
 export const handlers = [
   http.get("http://localhost/api/products", () => {

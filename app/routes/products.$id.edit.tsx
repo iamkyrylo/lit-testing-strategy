@@ -8,20 +8,14 @@ import {
 import type { Route } from "./+types/products.$id.edit";
 import { ProductForm } from "../features/product-form/ProductForm";
 import { getFieldErrors, productSchema } from "../features/product-form/product-schema";
-import type { Product } from "../types";
+import { getProduct, updateProduct } from "../api/products";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   if (!params.id) {
     throw new Response("Product not found", { status: 404 });
   }
 
-  const response = await fetch(`http://localhost/api/products/${params.id}`);
-
-  if (response.status === 404) {
-    throw new Response("Product not found", { status: 404 });
-  }
-
-  const product = (await response.json()) as Product;
+  const product = await getProduct(params.id);
 
   return { product };
 }
@@ -38,11 +32,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
     return { errors: getFieldErrors(result.error) };
   }
 
-  await fetch(`http://localhost/api/products/${params.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(result.data),
-  });
+  await updateProduct(params.id, result.data);
 
   return redirect(`/products/${params.id}`);
 }

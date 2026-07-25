@@ -1,37 +1,73 @@
 import { Suspense } from "react";
 import {
-  isRouteErrorResponse,
   useNavigate,
   useRouteError,
-  useAsyncError,
+  isRouteErrorResponse,
   Await,
   type LoaderFunctionArgs,
 } from "react-router";
-import { Alert, Button, Card, CardContent, Grid, Skeleton } from "@mui/material";
+import { Alert, Card, CardContent, Grid, Skeleton } from "@mui/material";
 import type { Route } from "./+types/products.$id";
+import { ProductDetails } from "../features/product-details/ProductDetails";
 import { SalesChart } from "../features/sales-chart/SalesChart";
-import type { Product, Sale } from "../types";
+import { useSalesRangeParams } from "../features/sales-chart/useSalesRangeParams";
+import { getProduct } from "../api/products";
+import { getSales } from "../api/sales";
+import { getDateRangeFromSearchParams } from "../utils/date";
 
-export function loader({ params }: LoaderFunctionArgs) {
+export function loader({ params, request }: LoaderFunctionArgs) {
   if (!params.id) {
     throw new Response("Product not found", { status: 404 });
   }
 
-  const product = fetch(`http://localhost/api/products/${params.id}`).then((response) => {
-    if (response.status === 404) {
-      throw new Response("Product not found", { status: 404 });
-    }
-    return response.json() as Promise<Product>;
-  });
-  // Pre-register a handler so a 404 doesn't log as an unhandled rejection before
-  // <Await> mounts and attaches its own - it still observes the same rejection.
+  const product = getProduct(params.id);
   product.catch(() => {});
 
-  const sales = fetch(`http://localhost/api/sales?productId=${params.id}`).then(
-    (response) => response.json() as Promise<Sale[]>,
-  );
+  const { from, to } = getDateRangeFromSearchParams(new URL(request.url).searchParams);
+  const sales = getSales({ productId: params.id, from, to });
 
-  return { product, sales };
+  return { product, sales, from, to };
+}
+
+export default function ProductDetailRoute({ loaderData }: Route.ComponentProps) {
+  const navigate = useNavigate();
+  const onRangeChange = useSalesRangeParams();
+
+  return (
+    <Grid container spacing={2}>
+      <Grid size={12}>
+        <Card>
+          <CardContent>
+            <Suspense fallback={<Skeleton variant="text" width="60%" height={80} />}>
+              <Await resolve={loaderData.product}>
+                {(product) => (
+                  <ProductDetails product={product} onEdit={() => navigate("edit")} />
+                )}
+              </Await>
+            </Suspense>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid size={12}>
+        <Card>
+          <CardContent>
+            <Suspense fallback={<Skeleton variant="rectangular" height={300} />}>
+              <Await resolve={loaderData.sales}>
+                {(sales) => (
+                  <SalesChart
+                    sales={sales}
+                    from={loaderData.from}
+                    to={loaderData.to}
+                    onRangeChange={onRangeChange}
+                  />
+                )}
+              </Await>
+            </Suspense>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
+  );
 }
 
 export function HydrateFallback() {
@@ -56,72 +92,14 @@ export function HydrateFallback() {
   );
 }
 
-// Scoped error UI for the product <Await>. A Response thrown inside a deferred
-// loader promise reaches here as the raw Response, not the normalized
-// ErrorResponseImpl that isRouteErrorResponse() checks for - so this checks
-// `instanceof Response` directly rather than relying on that helper.
-function ProductLoadError() {
-  const error = useAsyncError();
-
-  if (error instanceof Response && error.status === 404) {
-    return <Alert severity="error">Product not found.</Alert>;
-  }
-
-  return <Alert severity="error">Something went wrong loading this product.</Alert>;
-}
-
-export default function ProductDetailRoute({ loaderData, params }: Route.ComponentProps) {
-  const navigate = useNavigate();
-
-  return (
-    <Grid container spacing={2}>
-      <Grid size={12}>
-        <Card>
-          <CardContent>
-            <Suspense fallback={<Skeleton variant="text" width="60%" height={80} />}>
-              <Await resolve={loaderData.product} errorElement={<ProductLoadError />}>
-                {(product) => (
-                  <>
-                    <h2>{product.name}</h2>
-                    <dl>
-                      <dt>Description</dt>
-                      <dd>{product.description}</dd>
-                      <dt>SKU</dt>
-                      <dd>{product.sku}</dd>
-                      <dt>Price</dt>
-                      <dd>${product.price.toFixed(2)}</dd>
-                      <dt>Stock</dt>
-                      <dd>{product.stockQuantity}</dd>
-                    </dl>
-                    <Button variant="outlined" onClick={() => navigate("edit")}>
-                      Edit
-                    </Button>
-                  </>
-                )}
-              </Await>
-            </Suspense>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid size={12}>
-        <Card>
-          <CardContent>
-            <Suspense fallback={<Skeleton variant="rectangular" height={300} />}>
-              <Await resolve={loaderData.sales}>
-                {(sales) => <SalesChart productId={params.id} initialSales={sales} />}
-              </Await>
-            </Suspense>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
-  );
-}
-
 export function ErrorBoundary() {
   const error = useRouteError();
 
-  if (isRouteErrorResponse(error) && error.status === 404) {
+  const is404 =
+    (isRouteErrorResponse(error) && error.status === 404) ||
+    (error instanceof Response && error.status === 404);
+
+  if (is404) {
     return <Alert severity="error">Product not found.</Alert>;
   }
 

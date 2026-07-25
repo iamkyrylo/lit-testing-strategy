@@ -11,6 +11,7 @@ import {
   TableSortLabel,
   Typography,
 } from "@mui/material";
+import { formatPrice } from "../../utils/format";
 import type { Product } from "../../types";
 
 const ROWS_PER_PAGE = 10;
@@ -104,7 +105,7 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
                 <TableRow key={product.id} onClick={() => onSelect(product.id)} hover>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.sku}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>{formatPrice(product.price)}</TableCell>
                   <TableCell>{product.stockQuantity}</TableCell>
                   <TableCell>{product.status}</TableCell>
                 </TableRow>

@@ -13,11 +13,7 @@ describe("/products/new route", () => {
     expect(screen.getByRole("button", { name: /create product/i })).toBeInTheDocument();
   });
 
-  // Skipped: with all fields filled to their real values, clicking submit never
-  // triggers the action (confirmed via a wrapped action that never runs). Typing
-  // "x" into every field submits fine, so it's tied to one of the real values
-  // (numeric fields or the URL are suspects) rather than the form/button wiring
-  // itself. Revisit with a fresh, narrower repro rather than debugging further now.
+  // known issue: form submit doesn't trigger the action with real field values
   test.skip("creates a product and redirects to the product list on valid submission", async ({
     schema,
   }) => {
