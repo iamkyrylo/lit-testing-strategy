@@ -14,7 +14,7 @@ describe("getSales", () => {
       status: "active",
     });
     schema.sales.deleteMany({ where: { productId: product.id } });
-    schema.sales.create({
+    const inRange = schema.sales.create({
       date: "2026-02-10T00:00:00.000Z",
       productId: product.id,
       unitsSold: 42,
@@ -31,26 +31,21 @@ describe("getSales", () => {
       to: new Date("2026-02-28"),
     });
 
-    expect(sales).toHaveLength(1);
-    expect(sales[0].unitsSold).toBe(42);
+    expect(sales).toEqual([inRange.toJSON()]);
   });
 
   test("returns sales across all products when no productId is given", async ({ schema }) => {
-    const allSales = schema.sales.all().length;
-
     const sales = await getSales({
       from: new Date("0000-01-01"),
       to: new Date("9999-12-31"),
     });
 
-    expect(sales).toHaveLength(allSales);
+    expect(sales).toEqual(schema.sales.all().toJSON());
   });
 
   test("defaults to no filters when called with no params", async ({ schema }) => {
-    const allSales = schema.sales.all().length;
-
     const sales = await getSales();
 
-    expect(sales).toHaveLength(allSales);
+    expect(sales).toEqual(schema.sales.all().toJSON());
   });
 });

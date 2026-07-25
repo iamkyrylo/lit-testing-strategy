@@ -17,7 +17,7 @@ describe("getProducts", () => {
   test("returns every seeded product", async ({ schema }) => {
     const products = await getProducts();
 
-    expect(products).toHaveLength(schema.products.all().length);
+    expect(products).toEqual(schema.products.all().toJSON());
   });
 });
 
@@ -27,8 +27,7 @@ describe("getProduct", () => {
 
     const product = await getProduct(seeded.id);
 
-    expect(product.id).toBe(seeded.id);
-    expect(product.name).toBe(seeded.name);
+    expect(product).toEqual(seeded.toJSON());
   });
 
   test("throws a 404 Response for an unknown id", async () => {
@@ -37,22 +36,22 @@ describe("getProduct", () => {
 });
 
 describe("createProduct", () => {
-  test("creates a product and returns it with an id", async ({ schema }) => {
+  test("creates a product matching the schema's record for it", async ({ schema }) => {
     const created = await createProduct(productInput);
 
-    expect(created.id).toBeTruthy();
-    expect(created.name).toBe(productInput.name);
-    expect(schema.products.find(created.id)).not.toBeNull();
+    const stored = schema.products.find(created.id);
+    expect(stored).not.toBeNull();
+    expect(created).toEqual(stored?.toJSON());
   });
 });
 
 describe("updateProduct", () => {
-  test("updates the product's fields", async ({ schema }) => {
+  test("updates the product to match the schema's record for it", async ({ schema }) => {
     const [seeded] = schema.products.all().models;
 
     const updated = await updateProduct(seeded.id, { ...productInput, name: "Renamed" });
 
-    expect(updated.name).toBe("Renamed");
-    expect(schema.products.find(seeded.id)?.name).toBe("Renamed");
+    const stored = schema.products.find(seeded.id);
+    expect(updated).toEqual(stored?.toJSON());
   });
 });
