@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ProductList } from "./ProductList";
+import { createRoutesStub, Outlet } from "react-router";
+import { ProductList, type ProductListProps } from "./ProductList";
 import type { Product } from "../../types";
 
 function makeProduct(overrides: Partial<Product>): Product {
@@ -31,9 +32,25 @@ const products: Product[] = [
   }),
 ];
 
+function renderProductList(props: Partial<ProductListProps> = {}) {
+  const defaultProps: ProductListProps = { products, onAddProduct: vi.fn() };
+  const Stub = createRoutesStub([
+    {
+      path: "/products",
+      Component: Outlet,
+      children: [
+        { index: true, Component: () => <ProductList {...defaultProps} {...props} /> },
+        { path: ":id", Component: () => <p>Product detail</p> },
+      ],
+    },
+  ]);
+
+  return render(<Stub initialEntries={["/products"]} />);
+}
+
 describe("ProductList", () => {
   it("renders a row for every product with its key fields", () => {
-    render(<ProductList products={products} onSelect={vi.fn()} onAddProduct={vi.fn()} />);
+    renderProductList();
 
     expect(screen.getByText("Widget")).toBeInTheDocument();
     expect(screen.getByText("WID-1")).toBeInTheDocument();
@@ -43,20 +60,26 @@ describe("ProductList", () => {
     expect(screen.getByText("$29.99")).toBeInTheDocument();
   });
 
-  it("calls onSelect with the product id when a row is clicked", async () => {
-    const onSelect = vi.fn();
+  it("renders the product name as a link to its detail page", () => {
+    renderProductList();
+
+    const link = screen.getByRole("link", { name: "Widget" });
+    expect(link).toHaveAttribute("href", "/products/p1");
+  });
+
+  it("navigates to the product's detail page when its name link is clicked", async () => {
     const user = userEvent.setup();
-    render(<ProductList products={products} onSelect={onSelect} onAddProduct={vi.fn()} />);
+    renderProductList();
 
-    await user.click(screen.getByText("Widget"));
+    await user.click(screen.getByRole("link", { name: "Widget" }));
 
-    expect(onSelect).toHaveBeenCalledWith("p1");
+    expect(await screen.findByText("Product detail")).toBeInTheDocument();
   });
 
   it("calls onAddProduct when the Add Product button is clicked", async () => {
     const onAddProduct = vi.fn();
     const user = userEvent.setup();
-    render(<ProductList products={products} onSelect={vi.fn()} onAddProduct={onAddProduct} />);
+    renderProductList({ onAddProduct });
 
     await user.click(screen.getByRole("button", { name: /add product/i }));
 
@@ -64,14 +87,14 @@ describe("ProductList", () => {
   });
 
   it("renders an empty state when there are no products", () => {
-    render(<ProductList products={[]} onSelect={vi.fn()} onAddProduct={vi.fn()} />);
+    renderProductList({ products: [] });
 
     expect(screen.getByText(/no products/i)).toBeInTheDocument();
   });
 
   it("sorts rows by a column when its header is clicked", async () => {
     const user = userEvent.setup();
-    render(<ProductList products={products} onSelect={vi.fn()} onAddProduct={vi.fn()} />);
+    renderProductList();
 
     const rowsBefore = screen.getAllByRole("row").slice(1);
     expect(rowsBefore[0]).toHaveTextContent("Gadget");
@@ -87,9 +110,26 @@ describe("ProductList", () => {
       makeProduct({ id: `p${i}`, name: `Product ${i}`, sku: `SKU-${i}` }),
     );
 
-    render(<ProductList products={manyProducts} onSelect={vi.fn()} onAddProduct={vi.fn()} />);
+    renderProductList({ products: manyProducts });
 
     const rows = screen.getAllByRole("row").slice(1);
     expect(rows).toHaveLength(10);
+  });
+
+  it("shows the next page of products when the next page button is clicked", async () => {
+    const manyProducts = Array.from({ length: 15 }, (_, i) =>
+      makeProduct({ id: `p${i}`, name: `Product ${String(i).padStart(2, "0")}`, sku: `SKU-${i}` }),
+    );
+    const user = userEvent.setup();
+
+    renderProductList({ products: manyProducts });
+
+    expect(screen.getByText("Product 00")).toBeInTheDocument();
+    expect(screen.queryByText("Product 10")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /next page/i }));
+
+    expect(screen.getByText("Product 10")).toBeInTheDocument();
+    expect(screen.queryByText("Product 00")).not.toBeInTheDocument();
   });
 });

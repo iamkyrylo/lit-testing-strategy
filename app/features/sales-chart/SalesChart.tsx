@@ -7,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { DateRangePicker } from "../../ui/date-range-picker/DateRangePicker";
 import type { Sale } from "../../types";
 
@@ -29,18 +29,23 @@ export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) 
 
   return (
     <div>
+      <Typography id="sales-chart-heading" variant="h6" component="h2" gutterBottom>
+        Product Sales
+      </Typography>
       <Box sx={{ mb: 2 }}>
         <DateRangePicker from={from} to={to} onChange={onRangeChange} />
       </Box>
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#666" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="unitsSold" stroke="#1976d2" />
-        </LineChart>
-      </ResponsiveContainer>
+      <Box role="img" aria-labelledby="sales-chart-heading">
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#666" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="unitsSold" stroke="#1976d2" />
+          </LineChart>
+        </ResponsiveContainer>
+      </Box>
     </div>
   );
 }

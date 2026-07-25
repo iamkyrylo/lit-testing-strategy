@@ -39,15 +39,38 @@ describe("/products index route", () => {
     expect(await screen.findByText(product.name)).toBeInTheDocument();
   });
 
-  test("navigates to a product's detail page when its row is clicked", async ({ schema }) => {
+  test("navigates to a product's detail page when its name link is clicked", async ({
+    schema,
+  }) => {
     const product = firstVisibleProduct(schema.products.all().models);
     const user = userEvent.setup();
 
     renderRoute([{ path: ":id", Component: () => <div>Product detail</div> }]);
 
-    await user.click(await screen.findByText(product.name));
+    await user.click(await screen.findByRole("link", { name: product.name }));
 
     expect(await screen.findByText("Product detail")).toBeInTheDocument();
+  });
+
+  test("shows the next page of products when the next page button is clicked", async ({
+    schema,
+  }) => {
+    const sortedProducts = [...schema.products.all().models].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+    const firstPageProduct = sortedProducts[0];
+    const secondPageProduct = sortedProducts[10];
+    const user = userEvent.setup();
+
+    renderRoute();
+
+    expect(await screen.findByText(firstPageProduct.name)).toBeInTheDocument();
+    expect(screen.queryByText(secondPageProduct.name)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /next page/i }));
+
+    expect(await screen.findByText(secondPageProduct.name)).toBeInTheDocument();
+    expect(screen.queryByText(firstPageProduct.name)).not.toBeInTheDocument();
   });
 
   test("navigates to the new-product dialog when Add Product is clicked", async () => {

@@ -24,7 +24,16 @@ export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps)
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Suspense fallback={<Skeleton variant="rectangular" height={300} />}>
+            <Suspense
+              fallback={
+                <Skeleton
+                  variant="rectangular"
+                  height={300}
+                  role="status"
+                  aria-label="Loading product sales"
+                />
+              }
+            >
               <Await resolve={loaderData.sales}>
                 {(sales) => (
                   <SalesChart
@@ -42,13 +51,22 @@ export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps)
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Suspense fallback={<Skeleton variant="rectangular" height={400} />}>
+            <Suspense
+              fallback={
+                <Skeleton
+                  variant="rectangular"
+                  height={400}
+                  role="status"
+                  aria-label="Loading products"
+                />
+              }
+            >
               <Await resolve={loaderData.products}>
                 {(products) => (
                   <ProductList
                     products={products}
-                    onSelect={(id) => navigate(`/products/${id}`)}
                     onAddProduct={() => navigate("new")}
+                    headingId="products-heading"
                   />
                 )}
               </Await>
@@ -66,14 +84,24 @@ export function HydrateFallback() {
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Skeleton variant="rectangular" height={300} />
+            <Skeleton
+              variant="rectangular"
+              height={300}
+              role="status"
+              aria-label="Loading product sales"
+            />
           </CardContent>
         </Card>
       </Grid>
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Skeleton variant="rectangular" height={400} />
+            <Skeleton
+              variant="rectangular"
+              height={400}
+              role="status"
+              aria-label="Loading products"
+            />
           </CardContent>
         </Card>
       </Grid>

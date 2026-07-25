@@ -4,7 +4,7 @@ import { Container, Typography } from "@mui/material";
 export default function ProductsLayout() {
   return (
     <Container sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
+      <Typography id="products-heading" variant="h4" component="h1" gutterBottom>
         Products
       </Typography>
       <Outlet />

@@ -5,11 +5,12 @@ import type { Product } from "../../types";
 export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
   return (
     <>
-      <Typography variant="h4" component="h2">
+      <Typography variant="h4" component="h2" color="primary">
         {product.name}
       </Typography>
       <Box
         component="dl"
+        aria-label="Product Details"
         sx={{
           display: "grid",
           gridTemplateColumns: "max-content 1fr",
@@ -17,25 +18,25 @@ export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
           rowGap: 1,
         }}
       >
-        <Typography component="dt" color="text.secondary">
+        <Typography component="dt" color="textSecondary">
           Description:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {product.description}
         </Typography>
-        <Typography component="dt" color="text.secondary">
+        <Typography component="dt" color="textSecondary">
           SKU:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {product.sku}
         </Typography>
-        <Typography component="dt" color="text.secondary">
+        <Typography component="dt" color="textSecondary">
           Price:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>
           {formatPrice(product.price)}
         </Typography>
-        <Typography component="dt" color="text.secondary">
+        <Typography component="dt" color="textSecondary">
           Stock:
         </Typography>
         <Typography component="dd" sx={{ m: 0 }}>

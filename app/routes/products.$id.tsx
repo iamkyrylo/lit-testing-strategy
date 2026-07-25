@@ -6,7 +6,7 @@ import {
   Await,
   type LoaderFunctionArgs,
 } from "react-router";
-import { Alert, Card, CardContent, Grid, Skeleton } from "@mui/material";
+import { Alert, Box, Card, CardContent, Grid, Skeleton } from "@mui/material";
 import type { Route } from "./+types/products.$id";
 import { ProductDetails } from "../features/product-details/ProductDetails";
 import { SalesChart } from "../features/sales-chart/SalesChart";
@@ -38,7 +38,17 @@ export default function ProductDetailRoute({ loaderData }: Route.ComponentProps)
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Suspense fallback={<Skeleton variant="text" width="60%" height={80} />}>
+            <Suspense
+              fallback={
+                <Skeleton
+                  variant="text"
+                  width="60%"
+                  height={80}
+                  role="status"
+                  aria-label="Loading product details"
+                />
+              }
+            >
               <Await resolve={loaderData.product}>
                 {(product) => (
                   <ProductDetails product={product} onEdit={() => navigate("edit")} />
@@ -51,7 +61,16 @@ export default function ProductDetailRoute({ loaderData }: Route.ComponentProps)
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Suspense fallback={<Skeleton variant="rectangular" height={300} />}>
+            <Suspense
+              fallback={
+                <Skeleton
+                  variant="rectangular"
+                  height={300}
+                  role="status"
+                  aria-label="Loading product sales"
+                />
+              }
+            >
               <Await resolve={loaderData.sales}>
                 {(sales) => (
                   <SalesChart
@@ -76,15 +95,22 @@ export function HydrateFallback() {
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Skeleton variant="text" width="40%" height={40} />
-            <Skeleton variant="text" width="80%" />
+            <Box role="status" aria-label="Loading product details">
+              <Skeleton variant="text" width="40%" height={40} />
+              <Skeleton variant="text" width="80%" />
+            </Box>
           </CardContent>
         </Card>
       </Grid>
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Skeleton variant="rectangular" height={300} />
+            <Skeleton
+              variant="rectangular"
+              height={300}
+              role="status"
+              aria-label="Loading product sales"
+            />
           </CardContent>
         </Card>
       </Grid>

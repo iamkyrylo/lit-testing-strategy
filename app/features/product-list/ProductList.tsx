@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
+import { Link as RouterLink } from "react-router";
 import {
   Button,
+  Link,
   Stack,
   Table,
   TableBody,
@@ -39,7 +41,7 @@ function sortProducts(products: Product[], column: SortableColumn, order: SortOr
   });
 }
 
-export function ProductList({ products, onSelect, onAddProduct }: ProductListProps) {
+export function ProductList({ products, onAddProduct, headingId }: ProductListProps) {
   const [orderBy, setOrderBy] = useState<SortableColumn>("name");
   const [order, setOrder] = useState<SortOrder>("asc");
   const [page, setPage] = useState(0);
@@ -71,7 +73,7 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
   return (
     <Stack spacing={2}>
       <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-        <Button variant="contained" onClick={onAddProduct}>
+        <Button onClick={onAddProduct} size="large" variant="contained">
           Add Product
         </Button>
       </Stack>
@@ -80,7 +82,7 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
         <Typography>No products found.</Typography>
       ) : (
         <>
-          <Table>
+          <Table aria-labelledby={headingId}>
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
@@ -98,8 +100,12 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
             </TableHead>
             <TableBody>
               {pageProducts.map((product) => (
-                <TableRow key={product.id} onClick={() => onSelect(product.id)} hover>
-                  <TableCell>{product.name}</TableCell>
+                <TableRow key={product.id} hover>
+                  <TableCell>
+                    <Link component={RouterLink} to={product.id} underline="hover">
+                      {product.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{product.sku}</TableCell>
                   <TableCell>{formatPrice(product.price)}</TableCell>
                   <TableCell>{product.stockQuantity}</TableCell>
@@ -111,8 +117,8 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
           <TablePagination
             component="div"
             count={sortedProducts.length}
-            page={page}
             onPageChange={handlePageChange}
+            page={page}
             rowsPerPage={ROWS_PER_PAGE}
             rowsPerPageOptions={[ROWS_PER_PAGE]}
           />
@@ -127,6 +133,6 @@ type SortOrder = "asc" | "desc";
 
 export interface ProductListProps {
   products: Product[];
-  onSelect: (productId: string) => void;
   onAddProduct: () => void;
+  headingId?: string;
 }
