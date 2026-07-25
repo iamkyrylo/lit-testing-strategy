@@ -1,11 +1,11 @@
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { formatPrice } from "../../utils/format";
 import type { Product } from "../../types";
 
 export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
   return (
     <>
-      <h2>{product.name}</h2>
+      <Typography variant="h4">{product.name}</Typography>
       <dl>
         <dt>Description</dt>
         <dd>{product.description}</dd>

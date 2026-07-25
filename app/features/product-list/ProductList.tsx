@@ -16,6 +16,14 @@ import type { Product } from "../../types";
 
 const ROWS_PER_PAGE = 10;
 
+const columns: { key: SortableColumn; label: string }[] = [
+  { key: "name", label: "Name" },
+  { key: "sku", label: "SKU" },
+  { key: "price", label: "Price" },
+  { key: "stockQuantity", label: "Stock" },
+  { key: "status", label: "Status" },
+];
+
 function sortProducts(products: Product[], column: SortableColumn, order: SortOrder): Product[] {
   const direction = order === "asc" ? 1 : -1;
 
@@ -40,6 +48,7 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
     () => sortProducts(products, orderBy, order),
     [products, orderBy, order],
   );
+
   const pageProducts = sortedProducts.slice(
     page * ROWS_PER_PAGE,
     page * ROWS_PER_PAGE + ROWS_PER_PAGE,
@@ -54,14 +63,6 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
     }
     setPage(0);
   }
-
-  const columns: { key: SortableColumn; label: string }[] = [
-    { key: "name", label: "Name" },
-    { key: "sku", label: "SKU" },
-    { key: "price", label: "Price" },
-    { key: "stockQuantity", label: "Stock" },
-    { key: "status", label: "Status" },
-  ];
 
   return (
     <Stack spacing={2}>
