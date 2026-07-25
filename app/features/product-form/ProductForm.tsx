@@ -10,13 +10,6 @@ import {
 } from "@mui/material";
 import type { Product } from "../../types";
 
-export interface ProductFormProps {
-  mode: "add" | "edit";
-  initialProduct?: Product;
-  errors?: Partial<Record<keyof Product, string[]>>;
-  isSubmitting: boolean;
-}
-
 export function ProductForm({ mode, initialProduct, errors, isSubmitting }: ProductFormProps) {
   return (
     <Form method="post">
@@ -91,4 +84,11 @@ export function ProductForm({ mode, initialProduct, errors, isSubmitting }: Prod
       </Stack>
     </Form>
   );
+}
+
+export interface ProductFormProps {
+  mode: "add" | "edit";
+  initialProduct?: Product;
+  errors?: Partial<Record<keyof Product, string[]>>;
+  isSubmitting: boolean;
 }

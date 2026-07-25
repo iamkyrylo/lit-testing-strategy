@@ -16,15 +16,6 @@ import type { Product } from "../../types";
 
 const ROWS_PER_PAGE = 10;
 
-type SortableColumn = "name" | "sku" | "price" | "stockQuantity" | "status";
-type SortOrder = "asc" | "desc";
-
-export interface ProductListProps {
-  products: Product[];
-  onSelect: (productId: string) => void;
-  onAddProduct: () => void;
-}
-
 function sortProducts(products: Product[], column: SortableColumn, order: SortOrder): Product[] {
   const direction = order === "asc" ? 1 : -1;
 
@@ -124,4 +115,13 @@ export function ProductList({ products, onSelect, onAddProduct }: ProductListPro
       )}
     </Stack>
   );
+}
+
+type SortableColumn = "name" | "sku" | "price" | "stockQuantity" | "status";
+type SortOrder = "asc" | "desc";
+
+export interface ProductListProps {
+  products: Product[];
+  onSelect: (productId: string) => void;
+  onAddProduct: () => void;
 }

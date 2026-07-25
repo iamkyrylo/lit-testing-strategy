@@ -1,12 +1,6 @@
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Stack } from "@mui/material";
 
-export interface DateRangePickerProps {
-  from: Date;
-  to: Date;
-  onChange: (range: { from: Date; to: Date }) => void;
-}
-
 export function DateRangePicker({ from, to, onChange }: DateRangePickerProps) {
   return (
     <Stack direction="row" spacing={2}>
@@ -30,4 +24,10 @@ export function DateRangePicker({ from, to, onChange }: DateRangePickerProps) {
       />
     </Stack>
   );
+}
+
+export interface DateRangePickerProps {
+  from: Date;
+  to: Date;
+  onChange: (range: { from: Date; to: Date }) => void;
 }

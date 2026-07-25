@@ -2,11 +2,6 @@ import { Button } from "@mui/material";
 import { formatPrice } from "../../utils/format";
 import type { Product } from "../../types";
 
-export interface ProductDetailsProps {
-  product: Product;
-  onEdit: () => void;
-}
-
 export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
   return (
     <>
@@ -26,4 +21,9 @@ export function ProductDetails({ product, onEdit }: ProductDetailsProps) {
       </Button>
     </>
   );
+}
+
+export interface ProductDetailsProps {
+  product: Product;
+  onEdit: () => void;
 }

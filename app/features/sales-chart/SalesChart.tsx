@@ -11,13 +11,6 @@ import { Box } from "@mui/material";
 import { DateRangePicker } from "../../ui/date-range-picker/DateRangePicker";
 import type { Sale } from "../../types";
 
-export interface SalesChartProps {
-  sales: Sale[];
-  from: Date;
-  to: Date;
-  onRangeChange: (range: { from: Date; to: Date }) => void;
-}
-
 function aggregateByDate(sales: Sale[]): { date: string; unitsSold: number }[] {
   const totals = new Map<string, number>();
 
@@ -50,4 +43,11 @@ export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) 
       </ResponsiveContainer>
     </div>
   );
+}
+
+export interface SalesChartProps {
+  sales: Sale[];
+  from: Date;
+  to: Date;
+  onRangeChange: (range: { from: Date; to: Date }) => void;
 }
