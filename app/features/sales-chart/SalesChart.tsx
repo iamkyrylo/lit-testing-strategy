@@ -29,7 +29,7 @@ export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) 
 
   return (
     <div>
-      <Typography id="sales-chart-heading" variant="h6" component="h2" gutterBottom>
+      <Typography id="sales-chart-heading" variant="h6" component="h2" gutterBottom hidden>
         Product Sales
       </Typography>
       <Box sx={{ mb: 2 }}>
@@ -42,7 +42,7 @@ export function SalesChart({ sales, from, to, onRangeChange }: SalesChartProps) 
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="unitsSold" stroke="#1976d2" />
+            <Line dataKey="unitsSold" type="monotone" stroke="#1976d2" />
           </LineChart>
         </ResponsiveContainer>
       </Box>

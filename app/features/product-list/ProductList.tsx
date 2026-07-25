@@ -41,6 +41,11 @@ function sortProducts(products: Product[], column: SortableColumn, order: SortOr
   });
 }
 
+function paginateProducts(products: Product[], page: number): Product[] {
+  const startIndex = page * ROWS_PER_PAGE;
+  return products.slice(startIndex, startIndex + ROWS_PER_PAGE);
+}
+
 export function ProductList({ products, onAddProduct, headingId }: ProductListProps) {
   const [orderBy, setOrderBy] = useState<SortableColumn>("name");
   const [order, setOrder] = useState<SortOrder>("asc");
@@ -51,9 +56,9 @@ export function ProductList({ products, onAddProduct, headingId }: ProductListPr
     [products, orderBy, order],
   );
 
-  const pageProducts = sortedProducts.slice(
-    page * ROWS_PER_PAGE,
-    page * ROWS_PER_PAGE + ROWS_PER_PAGE,
+  const pageProducts = useMemo(
+    () => paginateProducts(sortedProducts, page),
+    [sortedProducts, page],
   );
 
   function handleSort(column: SortableColumn) {
@@ -73,7 +78,7 @@ export function ProductList({ products, onAddProduct, headingId }: ProductListPr
   return (
     <Stack spacing={2}>
       <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-        <Button onClick={onAddProduct} size="large" variant="contained">
+        <Button onClick={onAddProduct} variant="contained">
           Add Product
         </Button>
       </Stack>
