@@ -1,6 +1,5 @@
 import {
   redirect,
-  useNavigation,
   useActionData,
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
@@ -8,6 +7,7 @@ import {
 import { getProduct, updateProduct } from "../api/products";
 import { ProductForm } from "../features/product-form/ProductForm";
 import { getFieldErrors, productSchema } from "../features/product-form/productSchema";
+import { useProductFormStatus } from "../features/product-form/useProductFormStatus";
 import type { Route } from "./+types/products.$id.edit";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -32,21 +32,26 @@ export async function action({ params, request }: ActionFunctionArgs) {
     return { errors: getFieldErrors(result.error) };
   }
 
-  await updateProduct(params.id, result.data);
+  try {
+    await updateProduct(params.id, result.data);
+  } catch {
+    return { apiError: "Failed to save the product. Please try again." };
+  }
 
   return redirect(`/products/${params.id}`);
 }
 
 export default function ProductEditRoute({ loaderData }: Route.ComponentProps) {
-  const navigation = useNavigation();
+  const status = useProductFormStatus();
   const actionData = useActionData<typeof action>();
 
   return (
     <ProductForm
+      apiError={actionData?.apiError}
       errors={actionData?.errors}
       initialProduct={loaderData.product}
-      isSubmitting={navigation.state === "submitting"}
       mode="edit"
+      status={status}
     />
   );
 }

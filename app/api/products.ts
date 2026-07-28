@@ -23,6 +23,10 @@ export async function createProduct(input: ProductInput): Promise<Product> {
     body: JSON.stringify(input),
   });
 
+  if (!response.ok) {
+    throw new Response("Failed to create product", { status: response.status });
+  }
+
   return response.json() as Promise<Product>;
 }
 
@@ -32,6 +36,10 @@ export async function updateProduct(id: string, input: ProductInput): Promise<Pr
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+
+  if (!response.ok) {
+    throw new Response("Failed to update product", { status: response.status });
+  }
 
   return response.json() as Promise<Product>;
 }

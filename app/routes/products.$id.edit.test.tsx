@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRoutesStub } from "react-router";
+import { http, HttpResponse } from "msw";
+import { apiUrl } from "../api/config";
 import { test } from "../../test/context";
 import ProductEditRoute, { loader, action } from "./products.$id.edit";
 
@@ -39,5 +41,23 @@ describe("/products/:id/edit route", () => {
     await user.click(formButton);
 
     expect(await screen.findByText("Product details")).toBeInTheDocument();
+  });
+
+  test("shows an alert when the save request fails", async ({ schema, server }) => {
+    const user = userEvent.setup();
+    const product = schema.products.create();
+    server.use(
+      http.put(apiUrl("/products/:id"), () =>
+        HttpResponse.json({ message: "Boom" }, { status: 500 }),
+      ),
+    );
+
+    renderWithRouteStub([`/products/${product.id}/edit`]);
+
+    const formButton = await screen.findByRole("button", { name: "Save Changes" });
+    await user.click(formButton);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/failed to save/i);
+    expect(screen.getByRole("button", { name: "Save Changes" })).toBeInTheDocument();
   });
 });

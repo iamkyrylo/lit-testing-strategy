@@ -1,11 +1,32 @@
 import { Form } from "react-router";
-import { Button, MenuItem, Select, Stack, TextField, InputLabel, FormControl } from "@mui/material";
+import {
+  Alert,
+  Button,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import type { Product } from "../../types";
 
-export function ProductForm({ mode, initialProduct, errors, isSubmitting }: ProductFormProps) {
+function getButtonLabel(mode: "add" | "edit", status: ProductFormStatus): string {
+  switch (status) {
+    case "submitting":
+      return "Saving...";
+    case "submitted":
+      return mode === "add" ? "Created!" : "Saved!";
+    default:
+      return mode === "add" ? "Create Product" : "Save Changes";
+  }
+}
+
+export function ProductForm({ apiError, errors, initialProduct, mode, status }: ProductFormProps) {
   return (
     <Form method="post">
       <Stack spacing={2}>
+        {apiError && <Alert severity="error">{apiError}</Alert>}
         <TextField
           label="Name"
           name="name"
@@ -69,17 +90,20 @@ export function ProductForm({ mode, initialProduct, errors, isSubmitting }: Prod
             <MenuItem value="archived">Archived</MenuItem>
           </Select>
         </FormControl>
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : mode === "add" ? "Create Product" : "Save Changes"}
+        <Button type="submit" variant="contained" disabled={status !== "idle"}>
+          {getButtonLabel(mode, status)}
         </Button>
       </Stack>
     </Form>
   );
 }
 
+export type ProductFormStatus = "idle" | "submitting" | "submitted";
+
 export interface ProductFormProps {
-  mode: "add" | "edit";
-  initialProduct?: Product;
+  apiError?: string;
   errors?: Partial<Record<keyof Product, string[]>>;
-  isSubmitting: boolean;
+  initialProduct?: Product;
+  mode: "add" | "edit";
+  status: ProductFormStatus;
 }

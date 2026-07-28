@@ -15,13 +15,14 @@ import { useSalesRangeParams } from "../features/sales-chart/useSalesRangeParams
 import { getDateRangeFromSearchParams } from "../utils/date";
 import type { Route } from "./+types/products.$id";
 
-export function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
   if (!params.id) {
     throw new Response("Product not found", { status: 404 });
   }
 
+  const product = await getProduct(params.id);
+
   const { from, to } = getDateRangeFromSearchParams(new URL(request.url).searchParams);
-  const product = getProduct(params.id);
   const sales = getSales({ productId: params.id, from, to });
 
   return { product, sales, from, to };
@@ -31,26 +32,16 @@ export default function ProductDetailRoute({ loaderData }: Route.ComponentProps)
   const navigate = useNavigate();
   const onRangeChange = useSalesRangeParams();
 
+  const handleEdit = () => {
+    navigate("edit");
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Suspense
-              fallback={
-                <Skeleton
-                  aria-label="Loading product details"
-                  height={80}
-                  role="status"
-                  variant="text"
-                  width="60%"
-                />
-              }
-            >
-              <Await resolve={loaderData.product}>
-                {(product) => <ProductDetails product={product} onEdit={() => navigate("edit")} />}
-              </Await>
-            </Suspense>
+            <ProductDetails product={loaderData.product} onEdit={handleEdit} />
           </CardContent>
         </Card>
       </Grid>

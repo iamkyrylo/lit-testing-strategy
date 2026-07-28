@@ -1,4 +1,6 @@
+import { http, HttpResponse } from "msw";
 import { test } from "../../test/context";
+import { apiUrl } from "./config";
 import { getProducts, getProduct, createProduct, updateProduct } from "./products";
 import type { ProductInput } from "../types";
 
@@ -40,6 +42,14 @@ describe("createProduct", () => {
     const product = await createProduct(productInput);
     expect(product).toMatchObject(productInput);
   });
+
+  test("throws a Response when the request fails", async ({ server }) => {
+    server.use(
+      http.post(apiUrl("/products"), () => HttpResponse.json({ message: "Boom" }, { status: 500 })),
+    );
+
+    await expect(createProduct(productInput)).rejects.toMatchObject({ status: 500 });
+  });
 });
 
 describe("updateProduct", () => {
@@ -48,5 +58,16 @@ describe("updateProduct", () => {
     const product = await updateProduct(created.id, { ...productInput, name: "Renamed" });
 
     expect(product).toMatchObject({ id: created.id, name: "Renamed" });
+  });
+
+  test("throws a Response when the request fails", async ({ schema, server }) => {
+    const created = schema.products.create();
+    server.use(
+      http.put(apiUrl("/products/:id"), () =>
+        HttpResponse.json({ message: "Boom" }, { status: 500 }),
+      ),
+    );
+
+    await expect(updateProduct(created.id, productInput)).rejects.toMatchObject({ status: 500 });
   });
 });

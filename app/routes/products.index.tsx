@@ -9,10 +9,13 @@ import { useSalesRangeParams } from "../features/sales-chart/useSalesRangeParams
 import { getDateRangeFromSearchParams } from "../utils/date";
 import type { Route } from "./+types/products.index";
 
-export function loader({ request }: LoaderFunctionArgs) {
-  const { from, to } = getDateRangeFromSearchParams(new URL(request.url).searchParams);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const products = await getProducts();
 
-  return { products: getProducts(), sales: getSales({ from, to }), from, to };
+  const { from, to } = getDateRangeFromSearchParams(new URL(request.url).searchParams);
+  const sales = getSales({ from, to });
+
+  return { products, sales, from, to };
 }
 
 export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps) {
@@ -51,22 +54,7 @@ export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps)
       <Grid size={12}>
         <Card>
           <CardContent>
-            <Suspense
-              fallback={
-                <Skeleton
-                  aria-label="Loading products"
-                  height={400}
-                  role="status"
-                  variant="rectangular"
-                />
-              }
-            >
-              <Await resolve={loaderData.products}>
-                {(products) => (
-                  <ProductList onAddProduct={() => navigate("new")} products={products} />
-                )}
-              </Await>
-            </Suspense>
+            <ProductList onAddProduct={() => navigate("new")} products={loaderData.products} />
           </CardContent>
         </Card>
       </Grid>
