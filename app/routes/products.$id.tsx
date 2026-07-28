@@ -7,13 +7,13 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { Alert, Box, Card, CardContent, Grid, Skeleton } from "@mui/material";
-import type { Route } from "./+types/products.$id";
+import { getProduct } from "../api/products";
+import { getSales } from "../api/sales";
 import { ProductDetails } from "../features/product-details/ProductDetails";
 import { SalesChart } from "../features/sales-chart/SalesChart";
 import { useSalesRangeParams } from "../features/sales-chart/useSalesRangeParams";
-import { getProduct } from "../api/products";
-import { getSales } from "../api/sales";
 import { getDateRangeFromSearchParams } from "../utils/date";
+import type { Route } from "./+types/products.$id";
 
 export function loader({ params, request }: LoaderFunctionArgs) {
   if (!params.id) {

@@ -1,13 +1,13 @@
 import { Suspense } from "react";
 import { Await, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { Card, CardContent, Grid, Skeleton } from "@mui/material";
-import type { Route } from "./+types/products.index";
+import { getProducts } from "../api/products";
+import { getSales } from "../api/sales";
 import { ProductList } from "../features/product-list/ProductList";
 import { SalesChart } from "../features/sales-chart/SalesChart";
 import { useSalesRangeParams } from "../features/sales-chart/useSalesRangeParams";
-import { getProducts } from "../api/products";
-import { getSales } from "../api/sales";
 import { getDateRangeFromSearchParams } from "../utils/date";
+import type { Route } from "./+types/products.index";
 
 export function loader({ request }: LoaderFunctionArgs) {
   const { from, to } = getDateRangeFromSearchParams(new URL(request.url).searchParams);

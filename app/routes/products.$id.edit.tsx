@@ -5,10 +5,10 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
 } from "react-router";
-import type { Route } from "./+types/products.$id.edit";
 import { getProduct, updateProduct } from "../api/products";
 import { ProductForm } from "../features/product-form/ProductForm";
 import { getFieldErrors, productSchema } from "../features/product-form/productSchema";
+import type { Route } from "./+types/products.$id.edit";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   if (!params.id) {

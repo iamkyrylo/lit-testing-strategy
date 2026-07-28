@@ -1,8 +1,8 @@
 import { redirect, useNavigation, useActionData } from "react-router";
-import type { Route } from "./+types/products.new";
+import { createProduct } from "../api/products";
 import { ProductForm } from "../features/product-form/ProductForm";
 import { getFieldErrors, productSchema } from "../features/product-form/productSchema";
-import { createProduct } from "../api/products";
+import type { Route } from "./+types/products.new";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
