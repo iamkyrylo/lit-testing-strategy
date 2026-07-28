@@ -46,7 +46,11 @@ function paginateProducts(products: Product[], page: number): Product[] {
   return products.slice(startIndex, startIndex + ROWS_PER_PAGE);
 }
 
-export function ProductList({ products, onAddProduct, headingId }: ProductListProps) {
+export function ProductList({
+  products,
+  onAddProduct,
+  headingId = "products-heading",
+}: ProductListProps) {
   const [orderBy, setOrderBy] = useState<SortableColumn>("name");
   const [order, setOrder] = useState<SortOrder>("asc");
   const [page, setPage] = useState(0);

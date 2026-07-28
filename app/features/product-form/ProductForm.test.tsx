@@ -1,66 +1,59 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
+import { test } from "../../../test/context";
 import { ProductForm, type ProductFormProps } from "./ProductForm";
-import type { Product } from "../../types";
 
-const sampleProduct: Product = {
-  id: "p1",
-  name: "Widget",
-  sku: "WID-1",
-  price: 19.99,
-  stockQuantity: 10,
-  category: "Widgets",
-  imageUrl: "https://example.com/widget.png",
-  description: "A widget",
-  status: "active",
-};
-
-function renderForm(props: Partial<ProductFormProps> = {}) {
-  const defaultProps: ProductFormProps = { mode: "add", isSubmitting: false };
+const defaultProps: ProductFormProps = { mode: "add", isSubmitting: false };
+function renderProductForm(props: Partial<ProductFormProps> = {}) {
   const Stub = createRoutesStub([
     {
       path: "/",
       Component: () => <ProductForm {...defaultProps} {...props} />,
     },
   ]);
-
   return render(<Stub initialEntries={["/"]} />);
 }
 
 describe("ProductForm", () => {
   it("renders empty fields in add mode", () => {
-    renderForm({ mode: "add" });
+    renderProductForm({ mode: "add" });
 
-    expect(screen.getByLabelText(/^name$/i)).toHaveValue("");
-    expect(screen.getByLabelText(/sku/i)).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "SKU" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Price" })).toHaveValue("");
+    expect(screen.getByRole("spinbutton", { name: "Stock Quantity" })).toHaveValue(null);
+    expect(screen.getByRole("textbox", { name: "Category" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Image URL" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Description" })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "Status" })).toBeInTheDocument();
   });
 
-  it("renders prefilled fields in edit mode", () => {
-    renderForm({ mode: "edit", initialProduct: sampleProduct });
+  test("renders prefilled fields in edit mode", ({ schema }) => {
+    const product = schema.products.create();
+    renderProductForm({ mode: "edit", initialProduct: product });
 
-    expect(screen.getByLabelText(/^name$/i)).toHaveValue("Widget");
-    expect(screen.getByLabelText(/sku/i)).toHaveValue("WID-1");
+    expect(screen.getByLabelText("Name")).toHaveValue(product.name);
+    expect(screen.getByLabelText("SKU")).toHaveValue(product.sku);
+    expect(screen.getByLabelText("Price")).toHaveValue(product.price.toString());
   });
 
   it("shows a field error message when errors are provided", () => {
-    renderForm({ mode: "add", errors: { name: ["Name is required"] } });
-
+    renderProductForm({ mode: "add", errors: { name: ["Name is required"] } });
     expect(screen.getByText("Name is required")).toBeInTheDocument();
   });
 
   it("disables the submit button and shows saving state while submitting", () => {
-    renderForm({ mode: "add", isSubmitting: true });
-
-    expect(screen.getByRole("button", { name: /saving/i })).toBeDisabled();
+    renderProductForm({ mode: "add", isSubmitting: true });
+    expect(screen.getByRole("button", { name: "Saving..." })).toBeDisabled();
   });
 
-  it("shows create vs save labels depending on mode", () => {
-    const { unmount } = renderForm({ mode: "add" });
-    expect(screen.getByRole("button", { name: /create product/i })).toBeInTheDocument();
+  test("shows create vs save labels depending on mode", ({ schema }) => {
+    const { unmount } = renderProductForm({ mode: "add" });
+    expect(screen.getByRole("button", { name: "Create Product" })).toBeInTheDocument();
     unmount();
 
-    renderForm({ mode: "edit", initialProduct: sampleProduct });
-    expect(screen.getByRole("button", { name: /save changes/i })).toBeInTheDocument();
+    const product = schema.products.create();
+    renderProductForm({ mode: "edit", initialProduct: product });
+    expect(screen.getByRole("button", { name: "Save Changes" })).toBeInTheDocument();
   });
 });

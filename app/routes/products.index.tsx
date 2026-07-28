@@ -63,11 +63,7 @@ export default function ProductsIndexRoute({ loaderData }: Route.ComponentProps)
             >
               <Await resolve={loaderData.products}>
                 {(products) => (
-                  <ProductList
-                    headingId="products-heading"
-                    onAddProduct={() => navigate("new")}
-                    products={products}
-                  />
+                  <ProductList onAddProduct={() => navigate("new")} products={products} />
                 )}
               </Await>
             </Suspense>

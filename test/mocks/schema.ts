@@ -1,50 +1,37 @@
 import { model, schema, collection, factory, relations } from "miragejs-orm";
-import type { BelongsTo, CollectionConfig, Factory, SchemaInstance } from "miragejs-orm";
 import { faker } from "@faker-js/faker";
+import type { BelongsTo, CollectionConfig, Factory, HasMany, SchemaInstance } from "miragejs-orm";
 import type { Product, Sale } from "../../app/types";
 
-export const productModel = model()
-  .name("product")
-  .collection("products")
-  .attrs<Product>()
-  .build();
+export const productModel = model().name("product").collection("products").attrs<Product>().build();
 
 export const saleModel = model().name("sale").collection("sales").attrs<Sale>().build();
-
-type ProductModel = typeof productModel;
-type SaleModel = typeof saleModel;
-
-type TestCollections = {
-  products: CollectionConfig<
-    ProductModel,
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- {} is the library's own default for "no relationships"
-    {},
-    Factory<ProductModel, string, TestCollections>,
-    TestCollections
-  >;
-  sales: CollectionConfig<
-    SaleModel,
-    { product: BelongsTo<ProductModel, "productId"> },
-    Factory<SaleModel, string, TestCollections>,
-    TestCollections
-  >;
-};
 
 const productFactory = factory<TestCollections>()
   .model(productModel)
   .attrs({
-    name: () => faker.commerce.productName(),
-    sku: () => faker.string.alphanumeric(8).toUpperCase(),
-    price: () => Number(faker.commerce.price({ min: 5, max: 500 })),
-    stockQuantity: () => faker.number.int({ min: 0, max: 200 }),
     category: () => faker.commerce.department(),
-    imageUrl: () => faker.image.urlPicsumPhotos(),
     description: () => faker.commerce.productDescription(),
+    imageUrl: () => faker.image.urlPicsumPhotos(),
+    name: () => faker.commerce.productName(),
+    price: () => Number(faker.commerce.price({ min: 5, max: 500 })),
+    sku: () => faker.string.alphanumeric(8).toUpperCase(),
     status: () => faker.helpers.arrayElement(["active", "archived"]),
+    stockQuantity: () => faker.number.int({ min: 0, max: 200 }),
   })
-  .afterCreate((product, schema) => {
-    const salesCount = faker.number.int({ min: 10, max: 30 });
-    schema.sales.createMany(salesCount, { productId: product.id });
+  .traits({
+    withSales: {
+      afterCreate(product, schema) {
+        const salesCount = faker.number.int({ min: 1, max: 5 });
+        schema.sales.createMany(salesCount, { productId: product.id });
+      },
+    },
+    withManySales: {
+      afterCreate(product, schema) {
+        const salesCount = faker.number.int({ min: 10, max: 30 });
+        schema.sales.createMany(salesCount, { productId: product.id });
+      },
+    },
   })
   .build();
 
@@ -61,8 +48,11 @@ export const testSchema: SchemaInstance<TestCollections> = schema()
     products: collection<TestCollections>()
       .model(productModel)
       .factory(productFactory)
+      .relationships({
+        sales: relations.hasMany(saleModel),
+      })
       .seeds((schema) => {
-        schema.products.createMany(20);
+        schema.products.createMany(20, "withManySales");
       })
       .build(),
 
@@ -75,3 +65,24 @@ export const testSchema: SchemaInstance<TestCollections> = schema()
       .build(),
   })
   .build();
+
+/** --- Types --- */
+
+export type ProductModel = typeof productModel;
+
+export type SaleModel = typeof saleModel;
+
+export type TestCollections = {
+  products: CollectionConfig<
+    ProductModel,
+    { sales: HasMany<SaleModel> },
+    Factory<ProductModel, "withSales" | "withManySales", TestCollections>,
+    TestCollections
+  >;
+  sales: CollectionConfig<
+    SaleModel,
+    { product: BelongsTo<ProductModel> },
+    Factory<SaleModel, string, TestCollections>,
+    TestCollections
+  >;
+};

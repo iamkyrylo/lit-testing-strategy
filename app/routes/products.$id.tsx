@@ -20,10 +20,8 @@ export function loader({ params, request }: LoaderFunctionArgs) {
     throw new Response("Product not found", { status: 404 });
   }
 
-  const product = getProduct(params.id);
-  product.catch(() => {});
-
   const { from, to } = getDateRangeFromSearchParams(new URL(request.url).searchParams);
+  const product = getProduct(params.id);
   const sales = getSales({ productId: params.id, from, to });
 
   return { product, sales, from, to };
@@ -50,9 +48,7 @@ export default function ProductDetailRoute({ loaderData }: Route.ComponentProps)
               }
             >
               <Await resolve={loaderData.product}>
-                {(product) => (
-                  <ProductDetails product={product} onEdit={() => navigate("edit")} />
-                )}
+                {(product) => <ProductDetails product={product} onEdit={() => navigate("edit")} />}
               </Await>
             </Suspense>
           </CardContent>

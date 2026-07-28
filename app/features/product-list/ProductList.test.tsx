@@ -1,100 +1,80 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRoutesStub, Outlet } from "react-router";
+import { Typography } from "@mui/material";
+import { test } from "../../../test/context";
 import { ProductList, type ProductListProps } from "./ProductList";
-import type { Product } from "../../types";
+import { formatPrice } from "../../utils/format";
 
-function makeProduct(overrides: Partial<Product>): Product {
-  return {
-    id: "p1",
-    name: "Widget",
-    sku: "WID-1",
-    price: 19.99,
-    stockQuantity: 10,
-    category: "Widgets",
-    imageUrl: "https://example.com/widget.png",
-    description: "A widget",
-    status: "active",
-    ...overrides,
-  };
-}
-
-const products: Product[] = [
-  makeProduct({ id: "p1", name: "Widget", sku: "WID-1", price: 19.99, stockQuantity: 10 }),
-  makeProduct({
-    id: "p2",
-    name: "Gadget",
-    sku: "GAD-1",
-    price: 29.99,
-    stockQuantity: 0,
-    status: "archived",
-  }),
-];
-
+const defaultProps: ProductListProps = { products: [], onAddProduct: vi.fn() };
 function renderProductList(props: Partial<ProductListProps> = {}) {
-  const defaultProps: ProductListProps = { products, onAddProduct: vi.fn() };
   const Stub = createRoutesStub([
     {
       path: "/products",
       Component: Outlet,
       children: [
-        { index: true, Component: () => <ProductList {...defaultProps} {...props} /> },
-        { path: ":id", Component: () => <p>Product detail</p> },
+        {
+          index: true,
+          Component: () => (
+            <>
+              <Typography id="products-heading" variant="h1">
+                Products
+              </Typography>
+              <ProductList {...defaultProps} {...props} />
+            </>
+          ),
+        },
+        { path: ":id", Component: () => <p>Product details</p> },
       ],
     },
   ]);
-
   return render(<Stub initialEntries={["/products"]} />);
 }
 
 describe("ProductList", () => {
-  it("renders a row for every product with its key fields", () => {
-    renderProductList();
+  test("renders a table with rows for each product with its key fields", ({ schema }) => {
+    const products = schema.products.createMany(5).toJSON();
 
-    expect(screen.getByText("Widget")).toBeInTheDocument();
-    expect(screen.getByText("WID-1")).toBeInTheDocument();
-    expect(screen.getByText("$19.99")).toBeInTheDocument();
-    expect(screen.getByText("Gadget")).toBeInTheDocument();
-    expect(screen.getByText("GAD-1")).toBeInTheDocument();
-    expect(screen.getByText("$29.99")).toBeInTheDocument();
+    renderProductList({ products });
+
+    expect(screen.getByRole("table", { name: "Products" }));
+    expect(screen.getAllByRole("row").slice(1)).toHaveLength(products.length);
+
+    products.forEach((product) => {
+      const row = within(screen.getByRole("row", { name: new RegExp(product.name) }));
+
+      expect(row.getByRole("cell", { name: product.name })).toBeInTheDocument();
+      expect(row.getByRole("link", { name: product.name })).toHaveAttribute(
+        "href",
+        `/products/${product.id}`,
+      );
+      expect(row.getByRole("cell", { name: product.sku })).toBeInTheDocument();
+      expect(row.getByRole("cell", { name: formatPrice(product.price) })).toBeInTheDocument();
+      expect(row.getByRole("cell", { name: String(product.stockQuantity) })).toBeInTheDocument();
+      expect(row.getByRole("cell", { name: product.status })).toBeInTheDocument();
+    });
   });
 
-  it("renders the product name as a link to its detail page", () => {
-    renderProductList();
-
-    const link = screen.getByRole("link", { name: "Widget" });
-    expect(link).toHaveAttribute("href", "/products/p1");
-  });
-
-  it("navigates to the product's detail page when its name link is clicked", async () => {
+  test("navigates to the product's detail page when its name link is clicked", async ({
+    schema,
+  }) => {
     const user = userEvent.setup();
-    renderProductList();
+    const product = schema.products.create().toJSON();
 
-    await user.click(screen.getByRole("link", { name: "Widget" }));
+    renderProductList({ products: [product] });
 
-    expect(await screen.findByText("Product detail")).toBeInTheDocument();
+    await user.click(screen.getByRole("link", { name: product.name }));
+
+    expect(await screen.findByText("Product details")).toBeInTheDocument();
   });
 
-  it("calls onAddProduct when the Add Product button is clicked", async () => {
-    const onAddProduct = vi.fn();
+  test("sorts rows by a column when its header is clicked", async ({ schema }) => {
     const user = userEvent.setup();
-    renderProductList({ onAddProduct });
+    const products = schema.products
+      .createMany([[{ name: "Gadget" }], [{ name: "Widget" }]])
+      .toJSON();
 
-    await user.click(screen.getByRole("button", { name: /add product/i }));
-
-    expect(onAddProduct).toHaveBeenCalledTimes(1);
-  });
-
-  it("renders an empty state when there are no products", () => {
-    renderProductList({ products: [] });
-
-    expect(screen.getByText(/no products/i)).toBeInTheDocument();
-  });
-
-  it("sorts rows by a column when its header is clicked", async () => {
-    const user = userEvent.setup();
-    renderProductList();
+    renderProductList({ products });
 
     const rowsBefore = screen.getAllByRole("row").slice(1);
     expect(rowsBefore[0]).toHaveTextContent("Gadget");
@@ -105,31 +85,48 @@ describe("ProductList", () => {
     expect(rowsAfter[0]).toHaveTextContent("Widget");
   });
 
-  it("shows only 10 products per page and paginates the rest", () => {
-    const manyProducts = Array.from({ length: 15 }, (_, i) =>
-      makeProduct({ id: `p${i}`, name: `Product ${i}`, sku: `SKU-${i}` }),
-    );
+  test("shows only 10 products per page and paginates the rest", ({ schema }) => {
+    const products = schema.products.createMany(11).toJSON();
 
-    renderProductList({ products: manyProducts });
+    renderProductList({ products });
 
     const rows = screen.getAllByRole("row").slice(1);
     expect(rows).toHaveLength(10);
   });
 
-  it("shows the next page of products when the next page button is clicked", async () => {
-    const manyProducts = Array.from({ length: 15 }, (_, i) =>
-      makeProduct({ id: `p${i}`, name: `Product ${String(i).padStart(2, "0")}`, sku: `SKU-${i}` }),
-    );
+  test("shows the next page of products when the next page button is clicked", async ({
+    schema,
+  }) => {
     const user = userEvent.setup();
 
-    renderProductList({ products: manyProducts });
+    schema.products.createMany(10);
+    const first = schema.products.create({ name: "A Product" });
+    const last = schema.products.create({ name: "Z product" });
+    const all = schema.products.all().toJSON();
 
-    expect(screen.getByText("Product 00")).toBeInTheDocument();
-    expect(screen.queryByText("Product 10")).not.toBeInTheDocument();
+    renderProductList({ products: all });
+
+    expect(screen.getByText(first.name)).toBeInTheDocument();
+    expect(screen.queryByText(last.name)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /next page/i }));
 
-    expect(screen.getByText("Product 10")).toBeInTheDocument();
-    expect(screen.queryByText("Product 00")).not.toBeInTheDocument();
+    expect(screen.getByText(last.name)).toBeInTheDocument();
+    expect(screen.queryByText(first.name)).not.toBeInTheDocument();
+  });
+
+  it("calls onAddProduct when the Add Product button is clicked", async () => {
+    const user = userEvent.setup();
+
+    renderProductList();
+
+    await user.click(screen.getByRole("button", { name: "Add Product" }));
+
+    expect(defaultProps.onAddProduct).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders an empty state when there are no products", () => {
+    renderProductList();
+    expect(screen.getByText(/no products/i)).toBeInTheDocument();
   });
 });

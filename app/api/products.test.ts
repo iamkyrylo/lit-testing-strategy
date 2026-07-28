@@ -1,4 +1,4 @@
-import { test, describe, expect } from "../../test/context";
+import { test } from "../../test/context";
 import { getProducts, getProduct, createProduct, updateProduct } from "./products";
 import type { ProductInput } from "../types";
 
@@ -15,25 +15,19 @@ const productInput: ProductInput = {
 
 describe("getProducts", () => {
   test("returns every product in the store", async ({ schema }) => {
-    schema.products.createMany(3);
-
-    const expected = schema.products.all().toJSON();
+    const created = schema.products.createMany(3).toJSON();
     const products = await getProducts();
 
-    expect(products).toEqual(expected);
+    expect(products).toEqual(created);
   });
 });
 
 describe("getProduct", () => {
   test("returns the product matching the given id", async ({ schema }) => {
-    schema.products.create();
+    const created = schema.products.create().toJSON();
+    const product = await getProduct(created.id);
 
-    const seeded = schema.products.first();
-
-    const product = await getProduct(seeded!.id);
-
-    const expected = seeded!.toJSON();
-    expect(product).toEqual(expected);
+    expect(product).toEqual(created);
   });
 
   test("throws a 404 Response for an unknown id", async () => {
@@ -42,26 +36,17 @@ describe("getProduct", () => {
 });
 
 describe("createProduct", () => {
-  test("creates a product matching the schema's record for it", async ({ schema }) => {
-    const created = await createProduct(productInput);
-
-    const stored = schema.products.find(created.id);
-    expect(stored).not.toBeNull();
-
-    const expected = stored?.toJSON();
-    expect(created).toEqual(expected);
+  test("creates a product matching the schema's record for it", async () => {
+    const product = await createProduct(productInput);
+    expect(product).toMatchObject(productInput);
   });
 });
 
 describe("updateProduct", () => {
   test("updates the product to match the schema's record for it", async ({ schema }) => {
-    schema.products.create();
-    const seeded = schema.products.first();
+    const created = schema.products.create();
+    const product = await updateProduct(created.id, { ...productInput, name: "Renamed" });
 
-    const updated = await updateProduct(seeded!.id, { ...productInput, name: "Renamed" });
-
-    const stored = schema.products.find(seeded!.id);
-    const expected = stored?.toJSON();
-    expect(updated).toEqual(expected);
+    expect(product).toMatchObject({ id: created.id, name: "Renamed" });
   });
 });

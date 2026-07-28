@@ -1,24 +1,19 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateRangePicker, type DateRangePickerProps } from "./DateRangePicker";
 
+const defaultProps = {
+  from: new Date(2026, 0, 1),
+  to: new Date(2026, 0, 31),
+  onChange: vi.fn(),
+};
 function renderPicker(props: Partial<DateRangePickerProps> = {}) {
-  const onChange = vi.fn();
-  const defaultProps: DateRangePickerProps = {
-    from: new Date(2026, 0, 1),
-    to: new Date(2026, 0, 31),
-    onChange,
-  };
-
-  render(
+  return render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateRangePicker {...defaultProps} {...props} />
     </LocalizationProvider>,
   );
-
-  return { onChange };
 }
 
 function getFieldInput(label: RegExp) {
@@ -34,23 +29,25 @@ describe("DateRangePicker", () => {
   });
 
   it("calls onChange with the new start date and unchanged end date", () => {
-    const { onChange } = renderPicker();
+    renderPicker();
 
     fireEvent.change(getFieldInput(/^From$/), { target: { value: "02/15/2026" } });
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    const [{ from, to }] = onChange.mock.calls[0];
+    expect(defaultProps.onChange).toHaveBeenCalledTimes(1);
+
+    const [{ from, to }] = defaultProps.onChange.mock.calls[0];
     expect(from.toDateString()).toBe(new Date(2026, 1, 15).toDateString());
     expect(to.toDateString()).toBe(new Date(2026, 0, 31).toDateString());
   });
 
   it("calls onChange with the new end date and unchanged start date", () => {
-    const { onChange } = renderPicker();
+    renderPicker();
 
     fireEvent.change(getFieldInput(/^To$/), { target: { value: "02/20/2026" } });
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    const [{ from, to }] = onChange.mock.calls[0];
+    expect(defaultProps.onChange).toHaveBeenCalledTimes(1);
+
+    const [{ from, to }] = defaultProps.onChange.mock.calls[0];
     expect(from.toDateString()).toBe(new Date(2026, 0, 1).toDateString());
     expect(to.toDateString()).toBe(new Date(2026, 1, 20).toDateString());
   });

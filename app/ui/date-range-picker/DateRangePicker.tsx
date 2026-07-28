@@ -12,7 +12,7 @@ export function DateRangePicker({ from, to, onChange }: DateRangePickerProps) {
             onChange({ from: newFrom, to });
           }
         }}
-        slotProps={{ textField: { size: 'small', variant: 'filled' }}}
+        slotProps={{ textField: { size: "small", variant: "filled" } }}
       />
       <DatePicker
         label="To"
@@ -22,7 +22,7 @@ export function DateRangePicker({ from, to, onChange }: DateRangePickerProps) {
             onChange({ from, to: newTo });
           }
         }}
-        slotProps={{ textField: { size: 'small', variant: 'filled' }}}
+        slotProps={{ textField: { size: "small", variant: "filled" } }}
       />
     </Stack>
   );

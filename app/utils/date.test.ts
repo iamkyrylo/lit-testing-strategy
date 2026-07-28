@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import { toIsoDate, getDefaultDateRange, getDateRangeFromSearchParams } from "./date";
 
 describe("toIsoDate", () => {

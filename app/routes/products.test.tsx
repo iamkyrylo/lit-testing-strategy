@@ -1,10 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRoutesStub } from "react-router";
-import { describe, expect, it } from "vitest";
 import ProductsLayout from "./products";
 
-function renderLayout(initialPath: string) {
+function renderWithRouteStub(initialEntries: string[]) {
   const Stub = createRoutesStub([
     {
       path: "/products",
@@ -15,28 +14,27 @@ function renderLayout(initialPath: string) {
       ],
     },
   ]);
-
-  return render(<Stub initialEntries={[initialPath]} />);
+  return render(<Stub initialEntries={initialEntries} />);
 }
 
 describe("ProductsLayout", () => {
   it("does not render a back button on the list page", () => {
-    renderLayout("/products");
+    renderWithRouteStub(["/products"]);
 
-    expect(screen.queryByRole("button", { name: /back to products list/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Back to products list" })).not.toBeInTheDocument();
   });
 
   it("renders a back button on nested pages", () => {
-    renderLayout("/products/p1");
+    renderWithRouteStub(["/products/p1"]);
 
-    expect(screen.getByRole("button", { name: /back to products list/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back to products list" })).toBeInTheDocument();
   });
 
   it("navigates back to the list when the back button is clicked", async () => {
     const user = userEvent.setup();
-    renderLayout("/products/p1");
+    renderWithRouteStub(["/products/p1"]);
 
-    await user.click(screen.getByRole("button", { name: /back to products list/i }));
+    await user.click(screen.getByRole("button", { name: "Back to products list" }));
 
     expect(await screen.findByText("Product list")).toBeInTheDocument();
   });

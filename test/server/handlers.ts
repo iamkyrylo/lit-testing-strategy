@@ -1,11 +1,13 @@
 import { http, HttpResponse } from "msw";
-import { testSchema } from "../mocks/schema";
-import { ProductInput } from "../../app/types";
+import { ModelAttrs, QueryOptions } from "miragejs-orm";
 import { apiUrl } from "../../app/api/config";
+import { SaleModel, TestCollections, testSchema } from "../mocks/schema";
+import type { ProductInput } from "../../app/types";
 
 export const handlers = [
   http.get(apiUrl("/products"), () => {
-    return HttpResponse.json(testSchema.products.all().toJSON());
+    const products = testSchema.products.all();
+    return HttpResponse.json(products.toJSON());
   }),
 
   http.get(apiUrl("/products/:id"), ({ params }) => {
@@ -20,22 +22,22 @@ export const handlers = [
 
   http.post(apiUrl("/products"), async ({ request }) => {
     const body = (await request.json()) as ProductInput;
-    const created = testSchema.products.create(body);
+    const product = testSchema.products.create(body);
 
-    return HttpResponse.json(created.toJSON(), { status: 201 });
+    return HttpResponse.json(product.toJSON(), { status: 201 });
   }),
 
   http.put(apiUrl("/products/:id"), async ({ params, request }) => {
     const body = (await request.json()) as ProductInput;
-    const existing = testSchema.products.find(String(params.id));
+    let product = testSchema.products.find(String(params.id));
 
-    if (!existing) {
+    if (!product) {
       return HttpResponse.json({ message: "Product not found" }, { status: 404 });
     }
 
-    existing.update(body);
+    product = product.update(body);
 
-    return HttpResponse.json(existing.toJSON());
+    return HttpResponse.json(product.toJSON());
   }),
 
   http.get(apiUrl("/sales"), ({ request }) => {
@@ -44,12 +46,12 @@ export const handlers = [
     const from = url.searchParams.get("from") ?? "0000-01-01";
     const to = url.searchParams.get("to") ?? "9999-12-31";
 
-    const allSales = productId
-      ? testSchema.sales.findMany({ where: { productId } })
-      : testSchema.sales.all();
+    const whereClause: QueryOptions<ModelAttrs<SaleModel, TestCollections>>["where"] = {
+      date: { between: [from, to] },
+    };
+    if (productId) whereClause.productId = productId;
 
-    const filtered = allSales.models.filter((sale) => sale.date >= from && sale.date <= to);
-
-    return HttpResponse.json(filtered.map((sale) => sale.toJSON()));
+    const sales = testSchema.sales.findMany({ where: whereClause });
+    return HttpResponse.json(sales.toJSON());
   }),
 ];

@@ -1,13 +1,5 @@
 import { Form } from "react-router";
-import {
-  Button,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
+import { Button, MenuItem, Select, Stack, TextField, InputLabel, FormControl } from "@mui/material";
 import type { Product } from "../../types";
 
 export function ProductForm({ mode, initialProduct, errors, isSubmitting }: ProductFormProps) {
@@ -15,63 +7,62 @@ export function ProductForm({ mode, initialProduct, errors, isSubmitting }: Prod
     <Form method="post">
       <Stack spacing={2}>
         <TextField
-          name="name"
           label="Name"
+          name="name"
           defaultValue={initialProduct?.name ?? ""}
           error={Boolean(errors?.name)}
           helperText={errors?.name?.[0]}
         />
         <TextField
-          name="sku"
           label="SKU"
+          name="sku"
           defaultValue={initialProduct?.sku ?? ""}
           error={Boolean(errors?.sku)}
           helperText={errors?.sku?.[0]}
         />
         <TextField
-          name="price"
           label="Price"
-          type="number"
+          name="price"
           defaultValue={initialProduct?.price ?? ""}
           error={Boolean(errors?.price)}
           helperText={errors?.price?.[0]}
         />
         <TextField
-          name="stockQuantity"
           label="Stock Quantity"
+          name="stockQuantity"
           type="number"
           defaultValue={initialProduct?.stockQuantity ?? ""}
           error={Boolean(errors?.stockQuantity)}
           helperText={errors?.stockQuantity?.[0]}
         />
         <TextField
-          name="category"
           label="Category"
+          name="category"
           defaultValue={initialProduct?.category ?? ""}
           error={Boolean(errors?.category)}
           helperText={errors?.category?.[0]}
         />
         <TextField
-          name="imageUrl"
           label="Image URL"
+          name="imageUrl"
           defaultValue={initialProduct?.imageUrl ?? ""}
           error={Boolean(errors?.imageUrl)}
           helperText={errors?.imageUrl?.[0]}
         />
         <TextField
-          name="description"
           label="Description"
-          multiline
+          name="description"
           defaultValue={initialProduct?.description ?? ""}
           error={Boolean(errors?.description)}
           helperText={errors?.description?.[0]}
+          multiline
         />
         <FormControl>
           <InputLabel id="status-label">Status</InputLabel>
           <Select
-            name="status"
-            labelId="status-label"
             label="Status"
+            labelId="status-label"
+            name="status"
             defaultValue={initialProduct?.status ?? "active"}
           >
             <MenuItem value="active">Active</MenuItem>

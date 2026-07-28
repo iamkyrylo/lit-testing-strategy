@@ -11,10 +11,7 @@ export default function ProductsLayout() {
     <Container sx={{ py: 4 }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center", marginBottom: 2 }}>
         {!isListPage && (
-          <IconButton
-            aria-label="Back to products list"
-            onClick={() => navigate("/products")}
-          >
+          <IconButton aria-label="Back to products list" onClick={() => navigate("/products")}>
             <ArrowBackIcon />
           </IconButton>
         )}
