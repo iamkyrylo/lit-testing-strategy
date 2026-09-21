@@ -4,7 +4,7 @@ This repository contains the example React application for my Medium article abo
 
 ## Article
 
-- [Read the article on Medium](https://medium.com/@YOUR_USERNAME/ARTICLE_SLUG) <!-- Replace with the published article URL. -->
+- [Read the article on Medium](https://medium.com/@kyrylo.dev/layered-integration-testing-lit-a-practical-testing-strategy-for-modern-react-apps-f5236e2e6b74?sharedUserId=kyrylo.dev)
 - [Read the article in Markdown](./docs/article-template.md)
 
 ## Example App

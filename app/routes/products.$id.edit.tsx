@@ -4,6 +4,7 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
 } from "react-router";
+import { Skeleton, Stack } from "@mui/material";
 import { getProduct, updateProduct } from "../api/products";
 import { ProductForm } from "../features/product-form/ProductForm";
 import { getFieldErrors, productSchema } from "../features/product-form/productSchema";
@@ -53,5 +54,16 @@ export default function ProductEditRoute({ loaderData }: Route.ComponentProps) {
       mode="edit"
       status={status}
     />
+  );
+}
+
+export function HydrateFallback() {
+  return (
+    <Stack aria-label="Loading product form" role="status" spacing={2}>
+      {Array.from({ length: 8 }, (_, index) => (
+        <Skeleton height={56} key={index} variant="rounded" />
+      ))}
+      <Skeleton height={36} variant="rounded" />
+    </Stack>
   );
 }

@@ -4,11 +4,17 @@ import { createRoutesStub } from "react-router";
 import { http, HttpResponse } from "msw";
 import { apiUrl } from "../api/config";
 import { test } from "../../test/context";
-import ProductEditRoute, { loader, action } from "./products.$id.edit";
+import ProductEditRoute, { loader, action, HydrateFallback } from "./products.$id.edit";
 
 function renderWithRouteStub(initialEntries: string[]) {
   const Stub = createRoutesStub([
-    { path: "/products/:id/edit", Component: ProductEditRoute, loader, action },
+    {
+      path: "/products/:id/edit",
+      Component: ProductEditRoute,
+      loader,
+      action,
+      HydrateFallback,
+    },
     { path: "/products/:id", Component: () => <div>Product details</div> },
   ]);
   return render(<Stub initialEntries={initialEntries} />);
